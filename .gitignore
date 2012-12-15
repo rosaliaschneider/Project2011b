@@ -1,0 +1,8 @@
+Data/
+Bin/
+Obj/
+Test/
+ipch
+GeneratedFiles
+*.sdf
+*.pdb

@@ -1,0 +1,258 @@
+#include <RX/vec3f.h>
+#include <RX/CallMatlab.h>
+#include <RX/SoftwareRenderer.h>
+#include <QMouseEvent>
+#include "GLWidget.h"
+#include "Homography.h"
+
+using namespace RX;
+
+GLWidget::GLWidget(QWidget* parent)
+: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _frame(NULL), _scale(1.0), _selected(false)
+{
+	setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+	setMouseTracking(true);
+
+	connect(&_timer, SIGNAL(timeout()), this, SLOT(updateGL()));
+	_timer.setInterval(15);
+	_timer.start();
+
+	for(int i = 0; i < 4; ++i)
+		_newPoints[i] = RX::vec2(-1, -1);
+}
+
+GLWidget::~GLWidget()
+{
+}
+
+void GLWidget::initializeGL()
+{
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearDepth(1.0);
+	glShadeModel(GL_FLAT);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glGenTextures(1, &_tex);
+
+	_persp.initialize("perspV.cg", "", "perspF.cg");
+	_persp.setFParameterTex(_tex, "decal");
+
+	_hom.setIdentity();
+}
+
+void GLWidget::paintGL()
+{
+	static int lastFrameShown = -1;
+	static bool first = true;
+
+	if(_frame) 
+	{
+		int h = _frame->height();
+		int w = _frame->width();
+
+		if(*_currentFrame != lastFrameShown)
+		{
+			if(*_currentFrame > 0)
+				_globalHomographies->push_back((*_globalHomographies)[*_currentFrame-1] * (*_homographies)[*_currentFrame]);
+			else
+				_globalHomographies->push_back((*_homographies)[0]);
+
+			lastFrameShown = *_currentFrame;
+
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture( GL_TEXTURE_2D, _tex);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, _frame->bits());
+
+		}
+
+		_hom = (*_globalHomographies)[*_currentFrame];
+		_framePos1 = _hom * RX::vec3(-w/2, h/2, 1);
+		_framePos2 = _hom * RX::vec3(-w/2, -h/2, 1);
+		_framePos3 = _hom * RX::vec3(w/2, -h/2, 1);
+		_framePos4 = _hom * RX::vec3(w/2, h/2, 1);
+
+		for(int j = 0; j < _boards->size(); ++j)
+			for(int k = 0; k < 4; ++k)	
+				_boardPos[j][k] = RX::vec3((*_boards)[j][*_currentFrame].getX(k), (*_boards)[j][*_currentFrame].getY(k), 1);
+
+		glBindTexture(GL_TEXTURE_2D, _tex);
+
+		_persp.enable();
+		
+		vec3 f1 = _framePos1 * _scale;
+		vec3 f2 = _framePos2 * _scale;
+		vec3 f3 = _framePos3 * _scale;
+		vec3 f4 = _framePos4 * _scale;
+
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0, 1.0); glVertex3f(f1.x, f1.y - 200, _framePos1.z);
+		glTexCoord2f(0.0, 0.0); glVertex3f(f2.x, f2.y - 200, _framePos2.z);
+		glTexCoord2f(1.0, 0.0); glVertex3f(f3.x, f3.y - 200, _framePos3.z);
+		glTexCoord2f(1.0, 1.0); glVertex3f(f4.x, f4.y - 200, _framePos4.z); 
+		glEnd();
+
+		_persp.disable();
+
+		glDisable(GL_TEXTURE_2D);
+
+		//for(int i = 0; i < _boards->size(); ++i)
+		//{
+		//	glColor3f(0.0, 1.0, 0.0);
+		//	glBegin(GL_LINE_LOOP);
+		//	for(int j = 0; j < 4; ++j)
+		//		glVertex3f(_boardPos[i][j].x * _scale, _boardPos[i][j].y * _scale - 200, 1);
+		//	glEnd();
+		//}
+
+		glColor3f(1.0, 0.0, 0.0);
+		glPointSize(3);
+		glBegin(GL_POINTS);
+		for(int j = 0; j < 4; ++j) {
+			if(_newPoints[j].x != -1 && _newPoints[j].x != -1)
+				glVertex3f(_newPoints[j].x, _newPoints[j].y, 1);
+		}
+		glEnd();
+	} 
+}
+
+void GLWidget::setHomographies(vector<RX::mat3> *homographies)
+{
+	_homographies = homographies;
+}
+
+void GLWidget::setGlobalHomographies(vector<RX::mat3> *globalHomographies)
+{
+	_globalHomographies = globalHomographies;
+}
+
+void GLWidget::setBoards(vector< vector<BBox> > *boards)
+{
+	_boards = boards;
+}
+
+void GLWidget::resizeGL(int w, int h)
+{
+	_width = w;
+	_height = h;
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glViewport(0, 0, w, h);
+	glOrtho(-w/2, w/2, h/2, -h/2, -1000, 1000);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+void GLWidget::keyPressEvent(QKeyEvent  *ev)
+{
+	int b = -1, corner = -1;
+
+	switch(ev->key())
+	{
+	case Qt::Key_1:
+		b = 0;
+		break;
+	case Qt::Key_2:
+		b = 1;
+		break;
+	case Qt::Key_3:
+		b = 2;
+		break;
+	case Qt::Key_4:
+		b = 3;
+		break;
+	case Qt::Key_5:
+		b = 4;
+		break;
+	case Qt::Key_6:
+		b = 5;
+		break;
+	case Qt::Key_7:
+		b = 6;
+		break;
+	case Qt::Key_8:
+		b = 7;
+		break;
+	case Qt::Key_9:
+		b = 8;
+		break;
+
+	case Qt::Key_Q:
+		corner = 0;
+		break;
+	case Qt::Key_W:
+		corner = 1;
+		break;
+	case Qt::Key_S:
+		corner = 2;
+		break;
+	case Qt::Key_A:
+		corner = 3;
+		break;
+
+	case Qt::Key_Space:
+		correctHomographies();
+		break;
+	};
+
+	if(b != -1) {
+		emit selectedBoard(b+1);
+		_board = b;
+		_selected = false;
+	}
+	if(corner != -1) {
+		emit selectedPoint(corner+1);
+		_point = corner;
+		_selected = true;
+	}
+}
+
+void GLWidget::mousePressEvent(QMouseEvent *ev)
+{
+	if(_selected) {
+		RX::vec2 mousePos = RX::vec2(((ev->pos()).x()-_width/2), ((ev->pos()).y()-_height/2));
+		addCorner(_board, _point, *_currentFrame, mousePos);
+		_selected = false;
+	}
+}
+
+void GLWidget::mouseMoveEvent(QMouseEvent *ev)
+{
+	if(_frame == NULL)
+		return;
+}
+
+void GLWidget::addCorner(int board, int corner, int currentFrame, RX::vec2 pos)
+{
+	_newPoints[corner] = pos;
+}
+
+void GLWidget::correctHomographies()
+{
+	if(*_currentFrame == 0)
+		return;
+
+	Homography correction;
+	correction.setPoints2((*_boards)[_board][0].getPoint(0), (*_boards)[_board][0].getPoint(1), (*_boards)[_board][0].getPoint(2), (*_boards)[_board][0].getPoint(3));
+	correction.setPoints1(_newPoints[0]/_scale, _newPoints[1]/_scale, _newPoints[2]/_scale, _newPoints[3]/_scale);
+	correction.estimate();
+
+	(*_globalHomographies)[*_currentFrame] = correction.hom() * (*_globalHomographies)[*_currentFrame-1] * (*_homographies)[*_currentFrame];
+}
+
+void flipV(unsigned char *image, int w, int h, int bpp)
+{
+	unsigned char *flip = new unsigned char[w*h*bpp];
+	for(int i = 0; i < h; ++i) {
+		memcpy((void*)(flip + i*w*bpp), 
+			   (void*)(image + (h - i - 1)*w*bpp), w*bpp);
+	}
+	memcpy((void*)image, flip, w*h*bpp);
+	delete[] flip;
+}
