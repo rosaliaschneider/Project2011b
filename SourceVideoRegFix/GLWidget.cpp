@@ -1,5 +1,5 @@
 #include <RX/vec3f.h>
-#include <RX/CallMatlab.h>
+#include <RX/ImageProcessor.h>
 #include <RX/SoftwareRenderer.h>
 #include <QMouseEvent>
 #include "GLWidget.h"
@@ -8,7 +8,7 @@
 using namespace RX;
 
 GLWidget::GLWidget(QWidget* parent)
-: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _frame(NULL), _scale(1.0), _selected(false)
+: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _frame(NULL), _scale(1.0), _selected(false), buffer(NULL), buffer2(NULL), _edgeCount(0), _minX(99999), _minY(99999), _maxX(-99999), _maxY(-99999)
 {
 	setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 	setMouseTracking(true);
@@ -23,6 +23,8 @@ GLWidget::GLWidget(QWidget* parent)
 
 GLWidget::~GLWidget()
 {
+	if(buffer) delete[] buffer;
+	if(buffer2) delete[] buffer2;
 }
 
 void GLWidget::initializeGL()
@@ -38,13 +40,13 @@ void GLWidget::initializeGL()
 	_persp.initialize("perspV.cg", "", "perspF.cg");
 	_persp.setFParameterTex(_tex, "decal");
 
-	_hom.setIdentity();
+	buffer = new unsigned char[1000*1000*4];
+	buffer2 = new unsigned char[1000*1000*4];
 }
 
 void GLWidget::paintGL()
 {
 	static int lastFrameShown = -1;
-	static bool first = true;
 
 	if(_frame) 
 	{
@@ -53,12 +55,14 @@ void GLWidget::paintGL()
 
 		if(*_currentFrame != lastFrameShown)
 		{
-			if(*_currentFrame > 0)
-				_globalHomographies->push_back((*_globalHomographies)[*_currentFrame-1] * (*_homographies)[*_currentFrame]);
-			else
-				_globalHomographies->push_back((*_homographies)[0]);
+			_framePos[0] = (*_globalHomographies)[*_currentFrame] * RX::vec3(-w/2, h/2, 1);
+			_framePos[1] = (*_globalHomographies)[*_currentFrame] * RX::vec3(-w/2, -h/2, 1);
+			_framePos[2] = (*_globalHomographies)[*_currentFrame] * RX::vec3(w/2, -h/2, 1);
+			_framePos[3] = (*_globalHomographies)[*_currentFrame] * RX::vec3(w/2, h/2, 1);
 
-			lastFrameShown = *_currentFrame;
+			for(int j = 0; j < _boards->size(); ++j)
+				for(int k = 0; k < 4; ++k)	
+					_boardPos[j][k] = RX::vec3((*_boards)[j][*_currentFrame].getX(k), (*_boards)[j][*_currentFrame].getY(k), 1);
 
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture( GL_TEXTURE_2D, _tex);
@@ -68,33 +72,17 @@ void GLWidget::paintGL()
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, _frame->bits());
-
 		}
-
-		_hom = (*_globalHomographies)[*_currentFrame];
-		_framePos1 = _hom * RX::vec3(-w/2, h/2, 1);
-		_framePos2 = _hom * RX::vec3(-w/2, -h/2, 1);
-		_framePos3 = _hom * RX::vec3(w/2, -h/2, 1);
-		_framePos4 = _hom * RX::vec3(w/2, h/2, 1);
-
-		for(int j = 0; j < _boards->size(); ++j)
-			for(int k = 0; k < 4; ++k)	
-				_boardPos[j][k] = RX::vec3((*_boards)[j][*_currentFrame].getX(k), (*_boards)[j][*_currentFrame].getY(k), 1);
 
 		glBindTexture(GL_TEXTURE_2D, _tex);
 
 		_persp.enable();
-		
-		vec3 f1 = _framePos1 * _scale;
-		vec3 f2 = _framePos2 * _scale;
-		vec3 f3 = _framePos3 * _scale;
-		vec3 f4 = _framePos4 * _scale;
 
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.0, 1.0); glVertex3f(f1.x, f1.y - 200, _framePos1.z);
-		glTexCoord2f(0.0, 0.0); glVertex3f(f2.x, f2.y - 200, _framePos2.z);
-		glTexCoord2f(1.0, 0.0); glVertex3f(f3.x, f3.y - 200, _framePos3.z);
-		glTexCoord2f(1.0, 1.0); glVertex3f(f4.x, f4.y - 200, _framePos4.z); 
+		glTexCoord2f(0.0, 1.0); glVertex3f(_framePos[0].x * _scale, _framePos[0].y * _scale - 200, _framePos[0].z);
+		glTexCoord2f(0.0, 0.0); glVertex3f(_framePos[1].x * _scale, _framePos[1].y * _scale - 200, _framePos[1].z);
+		glTexCoord2f(1.0, 0.0); glVertex3f(_framePos[2].x * _scale, _framePos[2].y * _scale - 200, _framePos[2].z);
+		glTexCoord2f(1.0, 1.0); glVertex3f(_framePos[3].x * _scale, _framePos[3].y * _scale - 200, _framePos[3].z); 
 		glEnd();
 
 		_persp.disable();
@@ -114,10 +102,70 @@ void GLWidget::paintGL()
 		glPointSize(3);
 		glBegin(GL_POINTS);
 		for(int j = 0; j < 4; ++j) {
-			if(_newPoints[j].x != -1 && _newPoints[j].x != -1)
+			if(_newPoints[j].x != -1)
 				glVertex3f(_newPoints[j].x, _newPoints[j].y, 1);
 		}
 		glEnd();
+
+		if(*_currentFrame != lastFrameShown)
+		{
+			// update min/max
+			bool changed = false;
+			for(int k = 0; k < 4; ++k) {
+				if(_framePos[k].x > _maxX) {
+					_maxX = _framePos[k].x;
+					changed = true;
+				}
+				if(_framePos[k].x < _minX) {
+					_minX = _framePos[k].x;
+					changed = true;
+				}
+				if(_framePos[k].y > _maxY) {
+					_maxY = _framePos[k].y;
+					changed = true;
+				}
+				if(_framePos[k].y < _minY) {
+					_minY = _framePos[k].y;
+					changed = true;
+				}
+			}
+			if(changed) {
+				_regFrameW = _maxX-_minX+1;
+				_regFrameH = _maxY-_minY+1;
+			}
+
+			// apply edge detector
+			RX::SoftwareRenderer::render(*_frame, _framePos[0], _framePos[1], _framePos[2], _framePos[3], buffer, 1000, 1000, 3, 4);
+			memcpy(buffer2, buffer, 1000*1000*4);
+			QImage edges(buffer2, 1000, 1000, QImage::Format_RGB32);
+			Filter lap;
+			lap.setLaplacian();
+			ImageProcessor imgProc;
+			imgProc.setImage(&edges);
+			imgProc.applyFilter(lap);
+
+			char filename[100];
+			sprintf(filename, "test%d.png", *_currentFrame);
+			edges.save(filename);
+
+			// count edge pixels
+			int count = 0;
+			for(int i = 0; i < 1000; ++i) {
+				for(int j = 0; j < 1000; ++j) {
+					if(edges.bits()[(i*1000 + j)*4] > 50)
+						++count;
+				}
+			}
+
+			if(count < _edgeCount - 200) {
+				startMovingFrame();
+				moveRight(w);
+				correctHomographies();
+			}
+			_edgeCount = count;
+
+			lastFrameShown = *_currentFrame;
+		}
 	} 
 }
 
@@ -138,8 +186,6 @@ void GLWidget::setBoards(vector< vector<BBox> > *boards)
 
 void GLWidget::resizeGL(int w, int h)
 {
-	_width = w;
-	_height = h;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0, 0, w, h);
@@ -216,7 +262,7 @@ void GLWidget::keyPressEvent(QKeyEvent  *ev)
 void GLWidget::mousePressEvent(QMouseEvent *ev)
 {
 	if(_selected) {
-		RX::vec2 mousePos = RX::vec2(((ev->pos()).x()-_width/2), ((ev->pos()).y()-_height/2));
+		RX::vec2 mousePos = RX::vec2(((ev->pos()).x()-width()/2), ((ev->pos()).y()-height()/2));
 		addCorner(_board, _point, *_currentFrame, mousePos);
 		_selected = false;
 	}
@@ -233,14 +279,66 @@ void GLWidget::addCorner(int board, int corner, int currentFrame, RX::vec2 pos)
 	_newPoints[corner] = pos;
 }
 
+void GLWidget::startMovingFrame()
+{
+	_newPoints[0] = _oldPoints[0] = _framePos[0].xy();
+	_newPoints[1] = _oldPoints[1] = _framePos[1].xy();
+	_newPoints[2] = _oldPoints[2] = _framePos[2].xy();
+	_newPoints[3] = _oldPoints[3] = _framePos[3].xy();
+}
+
+void GLWidget::moveLeft(int pixels, int point)
+{
+	if(point == -1)
+	{
+		for(int i = 0; i < 4; ++i)
+			_newPoints[i].x -= pixels;
+	}
+	else
+		_newPoints[point].x -= pixels;
+}
+
+void GLWidget::moveRight(int pixels, int point)
+{
+	if(point == -1)
+	{
+		for(int i = 0; i < 4; ++i)
+			_newPoints[i].x += pixels;
+	}
+	else
+		_newPoints[point].x += pixels;
+}
+
+void GLWidget::moveUp(int pixels, int point)
+{
+	if(point == -1)
+	{
+		for(int i = 0; i < 4; ++i)
+			_newPoints[i].y -= pixels;
+	}
+	else
+		_newPoints[point].y -= pixels;
+} 
+
+void GLWidget::moveDown(int pixels, int point)
+{
+	if(point == -1)
+	{
+		for(int i = 0; i < 4; ++i)
+			_newPoints[i].y += pixels;
+	}
+	else
+		_newPoints[point].y += pixels;
+}
+
 void GLWidget::correctHomographies()
 {
 	if(*_currentFrame == 0)
 		return;
 
 	Homography correction;
-	correction.setPoints2((*_boards)[_board][0].getPoint(0), (*_boards)[_board][0].getPoint(1), (*_boards)[_board][0].getPoint(2), (*_boards)[_board][0].getPoint(3));
-	correction.setPoints1(_newPoints[0]/_scale, _newPoints[1]/_scale, _newPoints[2]/_scale, _newPoints[3]/_scale);
+	correction.setPoints1(_oldPoints[0], _oldPoints[1], _oldPoints[2], _oldPoints[3]);
+	correction.setPoints2(_newPoints[0], _newPoints[1], _newPoints[2], _newPoints[3]);
 	correction.estimate();
 
 	(*_globalHomographies)[*_currentFrame] = correction.hom() * (*_globalHomographies)[*_currentFrame-1] * (*_homographies)[*_currentFrame];

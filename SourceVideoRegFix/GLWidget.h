@@ -29,24 +29,28 @@ public:
     GLWidget(QWidget* parent = 0);
 	~GLWidget();
 
+	// parameters
 	void setFrame(QImage *frame) { _frame = frame; }
 	void setCurrentFrame(int *currentFrame) { _currentFrame = currentFrame; }
 	void setBoards(vector< vector<BBox> > *boards);
-	void setOriginalDimensions(int width, int height) { _frameOrigW = width; _frameOrigH = height; }
-	void setScale(double scale) { _scale = scale; }
-
 	void setHomographies(vector<RX::mat3> *homographies);
 	void setGlobalHomographies(vector<RX::mat3> *globalHomographies);
-
+	void setScale(double scale) { _scale = scale; }
+	
+	// interaction
 	void addCorner(int board, int corner, int currentFrame, RX::vec2 pos);
+	void removeFrame();
+	void startMovingFrame();
+	void moveLeft(int pixels, int point=-1);
+	void moveRight(int pixels, int point=-1);
+	void moveUp(int pixels, int point=-1);
+	void moveDown(int pixels, int point=-1);
 	void correctHomographies();
-			
+
+	// opengl
  	void initializeGL();
     void paintGL();
     void resizeGL(int w, int h);
-
-	inline int width() const { return _width; }
-	inline int height() const { return _height; }
 
 protected:
 	void mousePressEvent(QMouseEvent *ev);
@@ -54,32 +58,31 @@ protected:
 	void keyPressEvent(QKeyEvent  *ev);
 
 private:
+	// parameters
 	QImage *_frame;
 	int *_currentFrame;
 	double _scale;
-
 	vector<RX::mat3> *_homographies;
 	vector<RX::mat3> *_globalHomographies;
 	vector< vector<BBox> > *_boards;
 
-	RX::mat3 _hom;
-	RX::vec3 _framePos1, _framePos2, _framePos3, _framePos4;
+	// interaction
+	RX::vec3 _framePos[4];
 	RX::vec3 _boardPos[9][4];
-
 	RX::vec2 _newPoints[4], _oldPoints[4];
-
-	GLuint _tex;
-	RX::Shader _persp;
-
 	bool _selected;
 	int _board, _point;
 
-	int _frameOrigW, _frameOrigH;
-	int _width, _height;
-	int _left, _right, _top, _bottom;
-	QTimer _timer;
+	// auto detect changes
+	unsigned char *buffer, *buffer2;
+	int _minX, _minY, _maxX, _maxY;
+	int _regFrameW, _regFrameH;
+	int _edgeCount;
 
-	bool _isUpdating;
+	// opengl
+	GLuint _tex;
+	RX::Shader _persp;
+	QTimer _timer;
 };
 
 void flipV(unsigned char *image, int w, int h, int bpp);

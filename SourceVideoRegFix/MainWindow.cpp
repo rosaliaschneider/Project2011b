@@ -21,10 +21,14 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->btMove, SIGNAL(clicked()), this, SLOT(moveFrame()));
 
 	connect(ui->spinScale, SIGNAL(valueChanged(double)), this, SLOT(setScale(double)));
+	connect(ui->spinLeft,  SIGNAL(valueChanged(int)), this, SLOT(moveLeft(int)));
+	connect(ui->spinRight, SIGNAL(valueChanged(int)), this, SLOT(moveRight(int)));
+	connect(ui->spinUp,    SIGNAL(valueChanged(int)), this, SLOT(moveUp(int)));
+	connect(ui->spinDown,  SIGNAL(valueChanged(int)), this, SLOT(moveDown(int)));
 
 	connect(&_timer, SIGNAL(timeout()), this, SLOT(next()));
 
-	_timer.setInterval(35);
+	_timer.setInterval(50);
 }
 
 MainWindow::~MainWindow()
@@ -98,8 +102,8 @@ void MainWindow::loadInfo(std::string filename)
 	for(int i = 0; i < _numBoards; ++i)
 		_boards[i].resize(_numFrames);
 
-	_checkPositions.resize(_numBoards);
-	_checkFrames.resize(_numBoards);
+	_boardPositions.resize(_numBoards);
+	_boardFrames.resize(_numBoards);
 
 	for(int i = 0; i < _numBoards; ++i) 
 	{
@@ -110,13 +114,13 @@ void MainWindow::loadInfo(std::string filename)
 			b.setX(k, x);
 			b.setY(k, y);
 		}
-		_checkPositions[i] = b;
+		_boardPositions[i] = b;
 
 		for(int j = 0; j < 4; ++j) 
 		{
 			int frame;
 			input >> frame;
-			_checkFrames[i].push_back(frame);
+			_boardFrames[i].push_back(frame);
 		}
 
 		int movement;
@@ -135,10 +139,10 @@ void MainWindow::process()
 	
 	for(int i = 0; i < _numBoards; ++i)
 	{
-		RX::vec3 p1 = globalHomographies[_checkFrames[i][0]] * RX::vec3(_checkPositions[i].getPoint(0), 1);
-		RX::vec3 p2 = globalHomographies[_checkFrames[i][1]] * RX::vec3(_checkPositions[i].getPoint(1), 1);
-		RX::vec3 p3 = globalHomographies[_checkFrames[i][2]] * RX::vec3(_checkPositions[i].getPoint(2), 1);
-		RX::vec3 p4 = globalHomographies[_checkFrames[i][3]] * RX::vec3(_checkPositions[i].getPoint(3), 1);
+		RX::vec3 p1 = globalHomographies[_boardFrames[i][0]] * RX::vec3(_boardPositions[i].getPoint(0), 1);
+		RX::vec3 p2 = globalHomographies[_boardFrames[i][1]] * RX::vec3(_boardPositions[i].getPoint(1), 1);
+		RX::vec3 p3 = globalHomographies[_boardFrames[i][2]] * RX::vec3(_boardPositions[i].getPoint(2), 1);
+		RX::vec3 p4 = globalHomographies[_boardFrames[i][3]] * RX::vec3(_boardPositions[i].getPoint(3), 1);
 		p1.divideByZ();
 		p2.divideByZ();
 		p3.divideByZ();
@@ -186,6 +190,12 @@ void MainWindow::next()
 	if(_decoder.seekNextFrame() && _currentFrame < _numFrames-1)
 	{
 		_decoder.getFrame(_frame);
+
+		if(_currentFrame >= 0)
+ 			_globalHomographies.push_back(_globalHomographies[_currentFrame] * _homographies[_currentFrame+1]);
+		else
+			_globalHomographies.push_back(_homographies[0]);
+
 		++_currentFrame;
 	}
 }
@@ -208,3 +218,30 @@ void MainWindow::setScale(double scale)
 {
 	ui->widget->setScale(scale);
 }
+
+void MainWindow::moveFrame()
+{
+	ui->widget->startMovingFrame();
+}
+
+void MainWindow::moveLeft(int pixels)
+{
+	ui->widget->moveLeft(pixels);
+}
+
+void MainWindow::moveRight(int pixels)
+{
+	ui->widget->moveRight(pixels);
+}
+
+void MainWindow::moveUp(int pixels)
+{
+	ui->widget->moveUp(pixels);
+}
+
+void MainWindow::moveDown(int pixels)
+{
+	ui->widget->moveDown(pixels);
+}
+
+

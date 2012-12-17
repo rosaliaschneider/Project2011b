@@ -34,7 +34,12 @@ public slots:
 	void quit();
 
 	void setScale(double scale);
+
 	void moveFrame();
+	void moveLeft(int pixels);
+	void moveRight(int pixels);
+	void moveUp(int pixels);
+	void moveDown(int pixels);
 
 private:
     Ui::MainWindow *ui;
@@ -46,8 +51,8 @@ private:
 	std::vector<RX::mat3> _globalHomographies;
 	std::vector< std::vector<BBox> > _boards;
 
-	std::vector<BBox> _checkPositions;
-	std::vector< std::vector<int> > _checkFrames;
+	std::vector<BBox> _boardPositions;
+	std::vector< std::vector<int> > _boardFrames;
 
 	int _startingFrame;
 	int _currentFrame, _numFrames;
