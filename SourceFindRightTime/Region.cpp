@@ -12,11 +12,29 @@ bool Region::isInside(RX::vec2 point) const
 	return false;
 }
 
+void Region::addBoxes(std::vector<BBox> boxes)
+{
+	for(int i = 0; i < boxes.size(); ++i)
+		_boxes.push_back(boxes[i]);
+}
+
+//bool Region::isNeighbor(Region region) const
+//{
+//	if((abs(_indexI - region.indexI()) <= 1 && abs(_indexJ - region.indexJ()) <= 1)&&
+//		abs(_startingFrame - region.startingFrame()) <= 300)
+//	{
+//		return true;
+//	}
+//	return false;
+//}
+
 BBox::BBox()
+: _seen(false), _used(false), _startingFrame(-1)
 {
 }
 
 BBox::BBox(RX::vec2 p1, RX::vec2 p2, RX::vec2 p3, RX::vec2 p4)
+: _seen(false), _used(false), _startingFrame(-1)
 {
 	_p.push_back(p1);
 	_p.push_back(p2);

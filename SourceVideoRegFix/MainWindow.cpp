@@ -51,8 +51,6 @@ void MainWindow::load()
 	{
 		_folder = folder.toStdString();
 
-		_decoder.openFile(folder+"/Video.avi");
-
 		loadHoms((folder+"/Homs.txt").toStdString());
 		loadInfo((folder+"/MoveInfo.txt").toStdString());
 		process();
@@ -64,6 +62,7 @@ void MainWindow::load()
 		ui->widget->setGlobalHomographies(&_globalHomographies);
 		ui->widget->setBoards(&_boards);
 		
+		_decoder.openFile(folder+"/Video.avi");
 		next();
 	}
 }
@@ -131,18 +130,17 @@ void MainWindow::loadInfo(std::string filename)
 void MainWindow::process()
 {
 	// global homographies initial estimation
-	vector<RX::mat3> globalHomographies;
-	globalHomographies.push_back(_homographies[0]);
+	_globalHomographies.push_back(_homographies[0]);
 
 	for(int i = 1; i < _numFrames; ++i)
-		globalHomographies.push_back(globalHomographies[i-1] * _homographies[i]);
+		_globalHomographies.push_back(_globalHomographies[i-1] * _homographies[i]);
 	
 	for(int i = 0; i < _numBoards; ++i)
 	{
-		RX::vec3 p1 = globalHomographies[_boardFrames[i][0]] * RX::vec3(_boardPositions[i].getPoint(0), 1);
-		RX::vec3 p2 = globalHomographies[_boardFrames[i][1]] * RX::vec3(_boardPositions[i].getPoint(1), 1);
-		RX::vec3 p3 = globalHomographies[_boardFrames[i][2]] * RX::vec3(_boardPositions[i].getPoint(2), 1);
-		RX::vec3 p4 = globalHomographies[_boardFrames[i][3]] * RX::vec3(_boardPositions[i].getPoint(3), 1);
+		RX::vec3 p1 = _globalHomographies[_boardFrames[i][0]] * RX::vec3(_boardPositions[i].getPoint(0), 1);
+		RX::vec3 p2 = _globalHomographies[_boardFrames[i][1]] * RX::vec3(_boardPositions[i].getPoint(1), 1);
+		RX::vec3 p3 = _globalHomographies[_boardFrames[i][2]] * RX::vec3(_boardPositions[i].getPoint(2), 1);
+		RX::vec3 p4 = _globalHomographies[_boardFrames[i][3]] * RX::vec3(_boardPositions[i].getPoint(3), 1);
 		p1.divideByZ();
 		p2.divideByZ();
 		p3.divideByZ();

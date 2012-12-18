@@ -1,4 +1,5 @@
 #include <vector>
+#include <queue>
 #include <RX/SoftwareRenderer.h>
 #include <RX/VideoDecoder.h>
 #include <RX/ImageProcessor.h>
@@ -14,12 +15,21 @@ using namespace RX;
 
 int cellSize = 10;
 
-vector<Region> findImportantRegions(const QImage &image)
-{
-	vector<Region> regions;
+vector< vector<BBox> > initialCells;
+vector<Region> regions;
 
+void findInitialCells(const QImage &image)
+{
 	int cellsX = image.width()/cellSize;
 	int cellsY = image.height()/cellSize;
+
+	for(int i = 0; i < cellsY; ++i) {
+		vector<BBox> row;
+		for(int j = 0; j < cellsX; ++j)
+			row.push_back(BBox(vec2(j*cellSize, i*cellSize), vec2((j+1)*cellSize, i*cellSize), vec2((j+1)*cellSize, (i+1)*cellSize), vec2(j*cellSize, (i+1)*cellSize)));
+
+		initialCells.push_back(row);
+	}
 
 	for(int i = 0; i < cellsY; ++i)
 	{
@@ -38,16 +48,9 @@ vector<Region> findImportantRegions(const QImage &image)
 			}
 
 			if(count != 0)
-			{ 
-				Region r;
-				r.addBox(BBox(vec2(i*cellSize, j*cellSize), vec2((i+1)*cellSize, j*cellSize), vec2((i+1)*cellSize, (j+1)*cellSize), vec2(i*cellSize, (j+1)*cellSize)));
-				r.setColor(RX::vec3(rand()%255, rand()%255, rand()%255));
-				regions.push_back(r);
-			}
+				initialCells[i][j].setUsed(true);
 		}
 	}
-
-	return regions;
 }
 
 void drawRegions(QImage *image, const vector<Region> &regions)
@@ -60,23 +63,98 @@ void drawRegions(QImage *image, const vector<Region> &regions)
 			// explore coherence
 			if(lastTested != -1)
 			{
-				if(regions[lastTested].isInside(RX::vec2(i, j))) {
-					image->bits()[(i*image->width() + j)*4]     = 255;//regions[k].colorR();
-					//image->bits()[(i*image->width() + j)*4 + 1] = regions[k].colorG();
-					//image->bits()[(i*image->width() + j)*4 + 2] = regions[k].colorB();
+				if(regions[lastTested].isInside(RX::vec2(j, i))) {
+					image->bits()[(i*image->width() + j)*4]     = regions[lastTested].colorR();
+					image->bits()[(i*image->width() + j)*4 + 1] = regions[lastTested].colorG();
+					image->bits()[(i*image->width() + j)*4 + 2] = regions[lastTested].colorB();
 					continue;
 				}
 			}
 
 			for(int k = 0; k < regions.size(); ++k)
 			{
-				if(regions[k].isInside(RX::vec2(i, j))) {
-					image->bits()[(i*image->width() + j)*4]     = 255;//regions[k].colorR();
-					//image->bits()[(i*image->width() + j)*4 + 1] = regions[k].colorG();
-					//image->bits()[(i*image->width() + j)*4 + 2] = regions[k].colorB();
+				if(regions[k].isInside(RX::vec2(j, i))) {
+					image->bits()[(i*image->width() + j)*4]     = regions[k].colorR();
+					image->bits()[(i*image->width() + j)*4 + 1] = regions[k].colorG();
+					image->bits()[(i*image->width() + j)*4 + 2] = regions[k].colorB();
 					lastTested = k;
 					break;
 				}
+			}
+		}
+	}
+}
+
+void drawBoxes(QImage *image, const vector< vector<BBox> > &boxes)
+{
+	int lastTested = -1;
+	for(int i = 0; i < image->height(); ++i) 
+	{
+		for(int j = 0; j < image->width(); ++j) 
+		{
+			for(int k = 0; k < boxes.size(); ++k)
+			{
+				for(int l = 0; l < boxes[k].size(); ++l)
+				{
+					if(!(boxes[k][l].used())) continue;
+					if(boxes[k][l].isInside(RX::vec2(j, i))) 
+					{
+						image->bits()[(i*image->width() + j)*4]     = 255;
+						image->bits()[(i*image->width() + j)*4 + 1] = 255;
+						image->bits()[(i*image->width() + j)*4 + 2] = 255;
+						lastTested = k;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+void putRegionTogether()
+{
+	// put regions together - flood fill
+	for(int i = 0; i < initialCells.size(); ++i)
+	{
+		for(int j = 0; j < initialCells[i].size(); ++j)
+		{
+			if(initialCells[i][j].used() && !initialCells[i][j].seen())
+			{
+				Region r;
+				r.setColor(RX::vec3(rand()%255, rand()%255, rand()%255));
+				r.setStartingFrame(initialCells[i][j].startingFrame());
+
+				queue< pair<int, int> > q;
+				q.push(pair<int, int>(i, j));
+				initialCells[i][j].setSeen(true);
+				while(!q.empty())
+				{
+					pair<int, int> id = q.front();
+					q.pop();
+
+					r.addBox(initialCells[id.first][id.second]);
+
+					for(int k = -1; k <= 1; ++k) 
+					{
+						for(int l = -1; l <= 1; ++l) 
+						{
+							// boundary check
+							if(k == 0 && l == 0) continue;
+							if(id.first+k < 0) continue;
+							if(id.first+k >= initialCells.size()) continue;
+							if(id.second+l < 0) continue;
+							if(id.second+l >= initialCells[0].size()) continue;
+							
+							// check neighborhood
+							if(!initialCells[id.first+k][id.second+l].used() || initialCells[id.first+k][id.second+l].seen() || abs(r.startingFrame() - initialCells[id.first+k][id.second+l].startingFrame()) > 150)
+								continue;
+
+							q.push(pair<int, int>(id.first+k, id.second+l));
+							initialCells[id.first+k][id.second+l].setSeen(true);
+						}
+					}
+				}
+				regions.push_back(r);
 			}
 		}
 	}
@@ -98,66 +176,72 @@ int main(int argc, char *argv[])
 	imgProc.applyFilter(lap);
 	finalFrame.save(folder+"/FinalFrame2.png");
 
-	// find regions that have some edge information
-	vector<Region> regions = findImportantRegions(finalFrame);
-	drawRegions(&finalFrame, regions);
-	finalFrame.save(folder+"/FinalFrame3.png");
+	// find cells that have some edge information
+	findInitialCells(finalFrame);
 
-	// find time for each region
+	// find time for each cell
 	RX::VideoDecoder _video;
 	QImage frame;
 	_video.openFile(folder+"/FinalVideo.avi");
-	_video.seekNextFrame();
-	_video.getFrame(frame);
-	
-	int h = frame.height();
-	int w = frame.width();
 	
 	int currentFrame = 0;
-	do
+	while(_video.seekNextFrame())
 	{
+		_video.getFrame(frame);
+
 		imgProc.setImage(&frame, 3);
 		imgProc.toGray();
 		imgProc.applyFilter(lap);
 
-		for(int i = 0; i < h; ++i) 
+		for(int i = 0; i < initialCells.size(); ++i) 
 		{
-			for(int j = 0; j < w; ++j) 
+			for(int j = 0; j < initialCells[i].size(); ++j) 
 			{
-				char color = frame.bits()[(i*w + j)*3];
-				if(color > 50) {
-					for(int k = 0; k < regions.size(); ++k)
-					{
-						if(regions[k].startingFrame() == -1)
-							continue;
-						if(regions[k].isInside(RX::vec2(j, i)))
+				if(!(initialCells[i][j].used()))
+					continue;
+
+				int startingX = j*cellSize;
+				int startingY = i*cellSize;
+
+				bool blank = true;
+				for(int k = 0; k < cellSize && blank; ++k) {
+					for(int l = 0; l < cellSize && blank; ++l) {
+						char color = frame.bits()[((startingY+k)*frame.width() + (startingX+l))*4];
+						if(color > 50) 
 						{
-							regions[k].setStartingFrame(currentFrame);
+							blank = false;
+							break;
 						}
 					}
 				}
+
+				if(blank)
+					initialCells[i][j].setStartingFrame(currentFrame+1);
 			}
 		}
 		++currentFrame;
+		//if(currentFrame == 1000)
+		//	break;
 	}
-	while(_video.seekNextFrame());
+	putRegionTogether();
 
-	// put regions together - provisory
-	bool done = false;
-	while(!done)
-	{
-		for(int i = 0; i < regions.size(); ++i)
-		{
-			for(int j = i+1; j < regions.size(); ++j)
-			{
-				if(regions[i].isNeighbor(regions[j]))
-				{
-					regions[i].addBoxes(regions[j].boxes());
-					regions.erase(regions.begin()+j);
-					--j;
-				}
-			}
+	//drawBoxes(&finalFrame, initialCells);
+	drawRegions(&finalFrame, regions);
+
+	ofstream log((folder+"/log.txt").toAscii());
+
+	log << "Regions" << endl;
+	for(int i = 0; i < regions.size(); ++i)
+		log << regions[i].startingFrame() << std::endl;
+
+	log << "Boxes" << endl;
+	for(int i = 0; i < initialCells.size(); ++i) {
+		for(int j = 0; j < initialCells[i].size(); ++j) {
+			log << initialCells[i][j].startingFrame() << "  ";
 		}
+		log << std::endl;
 	}
+
+	finalFrame.save(folder+"/FinalFrame4.png");
 
 }

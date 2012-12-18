@@ -3,8 +3,9 @@
 //string basic = "D:/Research/Project2011b/Data/Differentials/";
 //string basic = "D:/Research/Project2011b/Data/Recitation13/";
 //string basic = "D:/Research/Project2011b/Data/Probability/";
-string basic = "D:/Research/Project2011b/Data/Separable/";
+//string basic = "D:/Research/Project2011b/Data/Separable/";
 //string basic = "D:/Research/Project2011b/Data/Poisson/";
+string basic = "D:/Research/Project2011b/Data/Reasoning/";
 
 int main(int argc, char *argv[])
 {
