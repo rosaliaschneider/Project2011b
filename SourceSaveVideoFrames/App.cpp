@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	RX::VideoDecoder decoder;
 	QImage frame;
 
-	string baseFile = "D:/Research/Project2011b/Data/Probability/"; 
+	string baseFile = "D:/Research/Project2011b/Data/Separable/"; 
 	string inputFile = baseFile+"Video.avi";
 	string inputHomFile = baseFile+"GlobalHoms.txt";
 	string inputBoardFile = baseFile+"Boards.txt";
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 	string outputBaseFile = baseFile+"Frames/frame";
 
 	loadHomographies(inputHomFile);
-	loadBoards(inputBoardFile);
+	//loadBoards(inputBoardFile);
 
 	unsigned char *buffer = new unsigned char[2000*2000*4];
 	memset(buffer, 0, 2000*2000*4);
@@ -161,20 +161,20 @@ int main(int argc, char **argv)
 		newFrame.save(out.c_str());
 		++currentFrame;
 	}
-	for(int i = 0; i < _finalBoards.size(); ++i)
-	{
-		for(int j = 0; j < _numFrames; ++j)
-		{
-			BBox b = _finalBoards[i].getPosition(j);
-			for(int k = 0; k < 4; ++k)
-			{
-				b.points[k].x = b.points[k].x + w/2 - newWidth/2;
-				b.points[k].y = b.points[k].y + h/2 - newHeight/2;
-			}
-			_finalBoards[i].setPos(b, j);
-		}
-	}
-	saveBoards(outputBoardFile);
+	//for(int i = 0; i < _finalBoards.size(); ++i)
+	//{
+	//	for(int j = 0; j < _numFrames; ++j)
+	//	{
+	//		BBox b = _finalBoards[i].getPosition(j);
+	//		for(int k = 0; k < 4; ++k)
+	//		{
+	//			b.points[k].x = b.points[k].x + w/2 - newWidth/2;
+	//			b.points[k].y = b.points[k].y + h/2 - newHeight/2;
+	//		}
+	//		_finalBoards[i].setPos(b, j);
+	//	}
+	//}
+	//saveBoards(outputBoardFile);
 
 	delete[] buffer;
 	return 0;

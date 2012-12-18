@@ -41,7 +41,6 @@ void GLWidget::initializeGL()
 	_persp.setFParameterTex(_tex, "decal");
 
 	buffer = new unsigned char[1000*1000*4];
-	buffer2 = new unsigned char[1000*1000*4];
 }
 
 void GLWidget::paintGL()
@@ -71,7 +70,7 @@ void GLWidget::paintGL()
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, _frame->bits());
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, _frame->bits());
 		}
 
 		glBindTexture(GL_TEXTURE_2D, _tex);
@@ -135,29 +134,30 @@ void GLWidget::paintGL()
 			}
 
 			// apply edge detector
-			RX::SoftwareRenderer::render(*_frame, _framePos[0], _framePos[1], _framePos[2], _framePos[3], buffer, 1000, 1000, 3, 4);
-			memcpy(buffer2, buffer, 1000*1000*4);
-			QImage edges(buffer2, 1000, 1000, QImage::Format_RGB32);
 			Filter lap;
 			lap.setLaplacian();
 			ImageProcessor imgProc;
-			imgProc.setImage(&edges);
+			imgProc.setImage(_frame, 3);
+			imgProc.toGray();
 			imgProc.applyFilter(lap);
-
-			char filename[100];
-			sprintf(filename, "test%d.png", *_currentFrame);
-			edges.save(filename);
+			RX::SoftwareRenderer::render(*_frame, _framePos[0], _framePos[1], _framePos[2], _framePos[3], buffer, 1000, 1000, 3, 4);
 
 			// count edge pixels
 			int count = 0;
 			for(int i = 0; i < 1000; ++i) {
 				for(int j = 0; j < 1000; ++j) {
-					if(edges.bits()[(i*1000 + j)*4] > 50)
+					if(buffer[(i*1000 + j)*4] > 50)
 						++count;
 				}
 			}
 
-			if(count < _edgeCount - 200) {
+			if(count < _edgeCount*0.9 && count < _edgeCount-200) {
+
+				char filename[100];
+				sprintf(filename, "test_%d.png", *_currentFrame);
+				QImage edges(buffer, 1000, 1000, QImage::Format_RGB32);
+				edges.save(filename);
+
 				startMovingFrame();
 				moveRight(w);
 				correctHomographies();

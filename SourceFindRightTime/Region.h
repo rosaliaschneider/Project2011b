@@ -27,16 +27,22 @@ private:
 class Region
 {
 public:
-	void setColor(RX::vec3 color) { _color = color; }
+	
 	void addBox(BBox b) { _boxes.push_back(b); }
 
 	bool isInside(RX::vec2 point) const;
+	bool isNeighbor(Region region) const;
 
 	int colorR() const { return _color.x; }
 	int colorG() const { return _color.y; }
 	int colorB() const { return _color.z; }
+	int startingFrame() const { return _startingFrame; }
+
+	void setColor(RX::vec3 color) { _color = color; }
+	void setStartingFrame(int startingFrame) { _startingFrame = startingFrame; }
 
 private:
+	int _startingFrame;
 	std::vector<BBox> _boxes;
 	RX::vec3 _color;
 };
