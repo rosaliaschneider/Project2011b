@@ -8,8 +8,35 @@
 using namespace std;
 
 int _numFrames;
+vector<BBox> _removes;
 std::vector<RX::mat3> _homographies;
 std::vector<Board> _finalBoards;
+
+void loadInfo(string filename)
+{
+	std::ifstream input(filename.c_str());
+
+	int numMoves, numRemoves;
+	int w, h;
+
+	input >> _numFrames;
+	input >> w >> h;
+	input >> numMoves;
+	for(int i = 0; i < numMoves; ++i);
+	input >> numRemoves;
+	for(int i = 0; i < numRemoves; ++i)
+	{
+		int minX, minY, maxX, maxY;
+		input >> minX >> minY >> maxX >> maxY;
+
+		BBox b;
+		b.points[0] = RX::vec2(minX, minY);
+		b.points[1] = RX::vec2(minX, maxY);
+		b.points[2] = RX::vec2(maxX, maxY);
+		b.points[3] = RX::vec2(maxX, minY);
+		_removes.push_back(b);
+	}
+}
 
 void loadHomographies(string filename)
 {
@@ -81,18 +108,20 @@ int main(int argc, char **argv)
 	RX::VideoDecoder decoder;
 	QImage frame;
 
-	string baseFile = "D:/Research/Project2011b/Data/Separable/"; 
+	string baseFile = "D:/Research/Project2011b/Data/Probability/"; 
 	string inputFile = baseFile+"Video.avi";
+	string inputInfoFile = baseFile+"GlobalHoms.txt";
 	string inputHomFile = baseFile+"GlobalHoms.txt";
 	string inputBoardFile = baseFile+"Boards.txt";
 	string outputBoardFile = baseFile+"FinalBoards.txt";
 	string outputBaseFile = baseFile+"Frames/frame";
 
+	loadInfo(inputInfoFile);
 	loadHomographies(inputHomFile);
 	//loadBoards(inputBoardFile);
 
-	unsigned char *buffer = new unsigned char[2000*2000*4];
-	memset(buffer, 0, 2000*2000*4);
+	unsigned char *buffer = new unsigned char[3000*2000*4];
+	memset(buffer, 0, 3000*2000*4);
 
 	int w, h;
 	int newWidth, newHeight;
@@ -142,7 +171,11 @@ int main(int argc, char **argv)
 		framePos3.divideByZ();
 		framePos4.divideByZ();
 
-		RX::SoftwareRenderer::render(frame, framePos1, framePos2, framePos3, framePos4, buffer, 2000, 2000, 3, 4);
+		for(int i = 0; i < _removes.size(); ++i) {
+			unsigned char *b = frame.bits();
+			RX::SoftwareRenderer::render(RX::vec3(0, 255, 0), RX::vec3(_removes[i].points[0], 1), RX::vec3(_removes[i].points[1], 1), RX::vec3(_removes[i].points[2], 1), RX::vec3(_removes[i].points[3], 1), b, frame.width(), frame.height(), 3, false);
+		}
+		RX::SoftwareRenderer::renderNoColorA(frame, RX::vec3(0, 255, 0), framePos1, framePos2, framePos3, framePos4, buffer, 3000, 2000, 3, 4);
 
 		QImage newFrame(newWidth, newHeight, QImage::Format_RGB32);
 		memset(newFrame.bits(), 0, newWidth*newHeight*4);
@@ -151,10 +184,10 @@ int main(int argc, char **argv)
 		{
 			for(int j = minX; j <= maxX; ++j)
 			{
-				newFrame.bits()[((i-minY)*newWidth + (j-minX))*4 + 2] = buffer[((i+1000)*2000 + j + 1000)*4];
-				newFrame.bits()[((i-minY)*newWidth + (j-minX))*4 + 1] = buffer[((i+1000)*2000 + j + 1000)*4 + 1];
-				newFrame.bits()[((i-minY)*newWidth + (j-minX))*4]     = buffer[((i+1000)*2000 + j + 1000)*4 + 2];
-				newFrame.bits()[((i-minY)*newWidth + (j-minX))*4 + 3] = buffer[((i+1000)*2000 + j + 1000)*4 + 3];
+				newFrame.bits()[((i-minY)*newWidth + (j-minX))*4 + 2] = buffer[((i+1000)*3000 + j + 1500)*4];
+				newFrame.bits()[((i-minY)*newWidth + (j-minX))*4 + 1] = buffer[((i+1000)*3000 + j + 1500)*4 + 1];
+				newFrame.bits()[((i-minY)*newWidth + (j-minX))*4]     = buffer[((i+1000)*3000 + j + 1500)*4 + 2];
+				newFrame.bits()[((i-minY)*newWidth + (j-minX))*4 + 3] = buffer[((i+1000)*3000 + j + 1500)*4 + 3];
 			}
 		}
 

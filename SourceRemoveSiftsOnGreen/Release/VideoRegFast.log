@@ -1,6 +1,0 @@
-﻿  App.cpp
-App.cpp(37): warning C4018: '<' : signed/unsigned mismatch
-  Generating code
-  Finished generating code
-RXEngine.lib(mat.obj) : warning LNK4099: PDB 'vc90.pdb' was not found with 'RXEngine.lib(mat.obj)' or at 'D:\Research\Project2011b\SourceVideoRegFast\Release\vc90.pdb'; linking object as if no debug info
-  VideoRegFast.vcxproj -> D:\Research\Project2011b\SourceVideoRegFast\Release\VideoRegFast.exe

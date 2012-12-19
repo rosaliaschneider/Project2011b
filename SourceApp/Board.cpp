@@ -30,7 +30,7 @@ unsigned long Board::getTime(int frame)
 }
 
 
-bool BBox::isInside(double x, double y)
+bool BBox::isInside(double x, double y) const
 {
 	if((pointInsideTriangle(points[0], points[1], points[2], RX::vec2(x, y)))||(pointInsideTriangle(points[0], points[2], points[3], RX::vec2(x, y))))
 	{

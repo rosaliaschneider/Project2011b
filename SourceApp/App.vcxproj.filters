@@ -74,6 +74,9 @@
     <ClCompile Include="GLWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Region.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="app.qrc">
@@ -100,6 +103,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Interval.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Region.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

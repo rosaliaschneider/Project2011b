@@ -8,9 +8,9 @@
 
 struct BBox
 {
-	RX::vec2 points[4];
-
 	bool isInside(double x, double y);
+
+	RX::vec2 points[4];
 };
 
 class Board
