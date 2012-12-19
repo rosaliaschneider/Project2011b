@@ -35,12 +35,14 @@ void MainWindow::load()
 	if(!folder.isNull())
 	{
 		loadBoards((folder+"/FinalBoards.txt").toStdString());
+		loadRegions((folder+"/Regions.txt").toStdString());
 		loadIntervals((folder+"/Intervals.txt").toStdString());
 		loadFinalFrame((folder+"/FinalFrame.png").toStdString());
 
 		_media = new Phonon::MediaObject();
 		_media->setCurrentSource(Phonon::MediaSource(folder+"/FinalVideo.avi"));
 
+		ui->widget_2->setRegions(&_regions);
 		ui->widget_2->setBoards(&_finalBoards);
 		ui->widget_2->setFrame(&_frame);
 		ui->widget_2->setVideoPlayer(ui->widget);
@@ -77,6 +79,36 @@ void MainWindow::loadBoards(std::string filename)
 	}	
 	for(int i = 0; i < boards.size(); ++i)
 		_finalBoards[i] = boards[i];
+}
+
+void MainWindow::loadRegions(std::string filename)
+{
+	std::ifstream input(filename);
+
+	int nregions;
+	input >> nregions;
+
+	_regions.clear();
+	_regions.resize(nregions);
+
+	for(int i = 0; i < nregions; ++i) 
+	{
+		int startingFrame, nboxes;
+		input >> startingFrame >> nboxes;
+		_regions[i].setStartingFrame(startingFrame);
+
+		for(int j = 0; j < nboxes; ++j) 
+		{
+			BBox b;
+			for(int k = 0; k < 4; ++k)
+			{
+				double x, y;
+				input >> x >> y;
+				b.points[k] = RX::vec2(x, y);
+			}
+			_regions[i].addBox(b);
+		}
+	}	
 }
 
 void MainWindow::loadIntervals(std::string filename)

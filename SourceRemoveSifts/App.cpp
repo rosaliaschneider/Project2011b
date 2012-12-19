@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 			// read sifts
 			std::string str = basic;
 			char buf[20];
-			sprintf(buf, "state_%d.txt", frame);
+			sprintf(buf, "Sifts/state_%d.txt", frame);
 			str += buf;
 
 			ifstream siftIn(str.c_str());

@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 	RX::VideoDecoder decoder;
 	QImage frame;
 
-	string baseFile = "D:/Research/Project2011b/Data/Reasoning/"; 
+	string baseFile = "D:/Research/Project2011b/Data/Probability/"; 
 	string inputFile = baseFile+"Video.avi";
 	string inputInfoFile = baseFile+"GlobalHoms.txt";
 	string inputHomFile = baseFile+"GlobalHoms.txt";

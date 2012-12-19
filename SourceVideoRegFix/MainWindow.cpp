@@ -52,7 +52,7 @@ void MainWindow::load()
 		_folder = folder.toStdString();
 
 		loadHoms((folder+"/Homs.txt").toStdString());
-		loadInfo((folder+"/MoveInfo.txt").toStdString());
+		loadInfo((folder+"/Info.txt").toStdString());
 		process();
 				
 		_currentFrame = -1;

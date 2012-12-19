@@ -8,6 +8,7 @@
 #include <QImage>
 #include <QTimer>
 #include "Board.h"
+#include "Region.h"
 #include "VideoPlayer.h"
 using namespace std;
 
@@ -30,6 +31,7 @@ public:
 	void setFrame(QImage *frame);
 	void setVideoPlayer(VideoPlayer *vp) { _vp = vp; }
 	void setBoards(vector<Board> *boards) { _boards = boards; }
+	void setRegions(vector<Region> *regions) { _regions = regions; }
 
 protected:
 	void initializeGL();
@@ -43,7 +45,9 @@ protected:
 private:
 	QImage *_frame;
 	vector<Board> *_boards;
+	vector<Region> *_regions;
 	int _board;
+	int _region;
 	double _scale;
 
 	GLuint tex;

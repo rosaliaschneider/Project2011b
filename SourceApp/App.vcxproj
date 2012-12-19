@@ -98,6 +98,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GLWidget.cpp" />
+    <ClCompile Include="Region.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="Interval.cpp" />
     <ClCompile Include="App.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="Board.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="Interval.h" />
+    <ClInclude Include="Region.h" />
     <CustomBuild Include="GLWidget.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing GLWidget.h...</Message>

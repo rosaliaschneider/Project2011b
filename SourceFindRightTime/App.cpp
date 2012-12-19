@@ -232,12 +232,19 @@ int main(int argc, char *argv[])
 	//drawBoxes(&finalFrame, initialCells);
 	drawRegions(&finalFrame, regions);
 
+	ofstream regionsFile((folder+"/Regions.txt").toAscii());
+	regionsFile << regions.size() << endl;
+	for(int i = 0; i < regions.size(); ++i) {
+		regionsFile << regions[i].startingFrame() << std::endl;
+		regionsFile << regions[i].boxes().size() << std::endl;
+		for(int j = 0; j < regions[i].boxes().size(); ++j) {
+			for(int k = 0; k < 4; ++k)
+				regionsFile << regions[i].boxes()[j].getX(k)-finalFrame.width()/2 << " " << regions[i].boxes()[j].getY(k)-finalFrame.height()/2 << " ";
+			regionsFile << std::endl;
+		}
+	}
+
 	ofstream log((folder+"/log.txt").toAscii());
-
-	log << "Regions" << endl;
-	for(int i = 0; i < regions.size(); ++i)
-		log << regions[i].startingFrame() << std::endl;
-
 	log << "Boxes" << endl;
 	for(int i = 0; i < initialCells.size(); ++i) {
 		for(int j = 0; j < initialCells[i].size(); ++j) {

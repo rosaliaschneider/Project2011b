@@ -18,12 +18,12 @@ int main(int argc, char **argv)
 	//string outputBaseFile = "D:/Research/Project2011b/Data/Poisson/Sifts/state";
 	//string inputFile = "D:/Research/Project2011b/Data/Poisson/Original.m4v";
 	//string outputBaseFile = "D:/Research/Project2011b/Data/Poisson/Sifts/state";
-	//string inputFile = "D:/Research/Project2011b/Data/Probability/Video.avi";
-	//string outputBaseFile = "D:/Research/Project2011b/Data/Probability/Sifts/state";
+	string inputFile = "D:/Research/Project2011b/Data/Probability/Video.avi";
+	string outputBaseFile = "D:/Research/Project2011b/Data/Probability/Sifts/state";
 	//string inputFile = "D:/Research/Project2011b/Data/Separable/Video.avi";
 	//string outputBaseFile = "D:/Research/Project2011b/Data/Separable/Sifts/state";
-	string inputFile = "D:/Research/Project2011b/Data/Reasoning/Video.avi";
-	string outputBaseFile = "D:/Research/Project2011b/Data/Reasoning/Sifts/state";
+	//string inputFile = "D:/Research/Project2011b/Data/Reasoning/Video.avi";
+	//string outputBaseFile = "D:/Research/Project2011b/Data/Reasoning/Sifts/state";
 
 	decoder.openFile(inputFile.c_str());
 
