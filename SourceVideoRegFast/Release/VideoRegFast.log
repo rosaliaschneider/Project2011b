@@ -1,4 +1,4 @@
-﻿Build started 18/12/2012 14:07:42.
+﻿Build started 19/12/2012 13:44:31.
      1>Project "D:\Research\Project2011b\SourceVideoRegFast\VideoRegFast.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Release\VideoRegFast.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -24,4 +24,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.11
+Time Elapsed 00:00:03.22

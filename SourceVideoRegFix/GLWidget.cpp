@@ -8,7 +8,7 @@
 using namespace RX;
 
 GLWidget::GLWidget(QWidget* parent)
-: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _frame(NULL), _scale(1.0), _selected(false), buffer(NULL), buffer2(NULL), _edgeCount(0), _minX(99999), _minY(99999), _maxX(-99999), _maxY(-99999)
+: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _frame(NULL), _scale(1.0), _selected(false), buffer(NULL), buffer2(NULL)
 {
 	setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 	setMouseTracking(true);
@@ -19,6 +19,8 @@ GLWidget::GLWidget(QWidget* parent)
 
 	for(int i = 0; i < 4; ++i)
 		_newPoints[i] = RX::vec2(-1, -1);
+
+	_translateToFit = RX::vec3(0, 0, 0);
 }
 
 GLWidget::~GLWidget()
@@ -41,6 +43,7 @@ void GLWidget::initializeGL()
 	_persp.setFParameterTex(_tex, "decal");
 
 	buffer = new unsigned char[1000*1000*4];
+	buffer2 = new unsigned char[1000*1000*4];
 }
 
 void GLWidget::paintGL()
@@ -78,10 +81,10 @@ void GLWidget::paintGL()
 		_persp.enable();
 
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.0, 1.0); glVertex3f(_framePos[0].x * _scale, _framePos[0].y * _scale - 200, _framePos[0].z);
-		glTexCoord2f(0.0, 0.0); glVertex3f(_framePos[1].x * _scale, _framePos[1].y * _scale - 200, _framePos[1].z);
-		glTexCoord2f(1.0, 0.0); glVertex3f(_framePos[2].x * _scale, _framePos[2].y * _scale - 200, _framePos[2].z);
-		glTexCoord2f(1.0, 1.0); glVertex3f(_framePos[3].x * _scale, _framePos[3].y * _scale - 200, _framePos[3].z); 
+		glTexCoord2f(0.0, 1.0); glVertex3f(_framePos[0].x * _scale + _translateToFit.x, _framePos[0].y * _scale + _translateToFit.y, _framePos[0].z);
+		glTexCoord2f(0.0, 0.0); glVertex3f(_framePos[1].x * _scale + _translateToFit.x, _framePos[1].y * _scale + _translateToFit.y, _framePos[1].z);
+		glTexCoord2f(1.0, 0.0); glVertex3f(_framePos[2].x * _scale + _translateToFit.x, _framePos[2].y * _scale + _translateToFit.y, _framePos[2].z);
+		glTexCoord2f(1.0, 1.0); glVertex3f(_framePos[3].x * _scale + _translateToFit.x, _framePos[3].y * _scale + _translateToFit.y, _framePos[3].z); 
 		glEnd();
 
 		_persp.disable();
@@ -108,51 +111,34 @@ void GLWidget::paintGL()
 
 		if(*_currentFrame != lastFrameShown)
 		{
-			// update min/max
-			bool changed = false;
-			for(int k = 0; k < 4; ++k) {
-				if(_framePos[k].x > _maxX) {
-					_maxX = _framePos[k].x;
-					changed = true;
-				}
-				if(_framePos[k].x < _minX) {
-					_minX = _framePos[k].x;
-					changed = true;
-				}
-				if(_framePos[k].y > _maxY) {
-					_maxY = _framePos[k].y;
-					changed = true;
-				}
-				if(_framePos[k].y < _minY) {
-					_minY = _framePos[k].y;
-					changed = true;
-				}
-			}
-			if(changed) {
-				_regFrameW = _maxX-_minX+1;
-				_regFrameH = _maxY-_minY+1;
-			}
+			// keep old
+			memcpy(buffer2, buffer, 1000*1000*4);
 
-			// apply edge detector
+			// apply edge detector to frame
 			Filter lap;
 			lap.setLaplacian();
 			ImageProcessor imgProc;
 			imgProc.setImage(_frame, 3);
 			imgProc.toGray();
 			imgProc.applyFilter(lap);
-			RX::SoftwareRenderer::render(*_frame, _framePos[0], _framePos[1], _framePos[2], _framePos[3], buffer, 1000, 1000, 3, 4);
+			// render frame to buffer
+			RX::SoftwareRenderer::render(*_frame, _framePos[0]+_translateToFit, _framePos[1]+_translateToFit, _framePos[2]+_translateToFit, _framePos[3]+_translateToFit, buffer, 1000, 1000, 3, 4);
 
-			// count edge pixels
+			// count edge pixels that were in buffer, but now disappeared
 			int count = 0;
+			int totalCount = 0;
 			for(int i = 0; i < 1000; ++i) {
 				for(int j = 0; j < 1000; ++j) {
-					if(buffer[(i*1000 + j)*4] > 50)
-						++count;
+					if(buffer2[(i*1000 + j)*4] > 50) {
+						++totalCount;
+						if(buffer[(i*1000 + j)*4] <= 50)
+							++count;
+					}
 				}
 			}
 
-			if(count < _edgeCount*0.9 && count < _edgeCount-200) {
-
+			if(count >= 100 && count >= totalCount * 0.7) 
+			{
 				char filename[100];
 				sprintf(filename, "test_%d.png", *_currentFrame);
 				QImage edges(buffer, 1000, 1000, QImage::Format_RGB32);
@@ -161,8 +147,8 @@ void GLWidget::paintGL()
 				startMovingFrame();
 				moveRight(w);
 				correctHomographies();
+				_translateToFit -= RX::vec3(w, 0, 0);
 			}
-			_edgeCount = count;
 
 			lastFrameShown = *_currentFrame;
 		}
@@ -342,6 +328,8 @@ void GLWidget::correctHomographies()
 	correction.estimate();
 
 	(*_globalHomographies)[*_currentFrame] = correction.hom() * (*_globalHomographies)[*_currentFrame-1] * (*_homographies)[*_currentFrame];
+	for(int i = *_currentFrame+1; i < _globalHomographies->size(); ++i)
+		(*_globalHomographies)[i] = (*_globalHomographies)[i-1] * (*_homographies)[i];
 }
 
 void flipV(unsigned char *image, int w, int h, int bpp)

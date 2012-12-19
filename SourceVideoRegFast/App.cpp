@@ -2,17 +2,17 @@
 
 //string basic = "D:/Research/Project2011b/Data/Differentials/";
 //string basic = "D:/Research/Project2011b/Data/Recitation13/";
-//string basic = "D:/Research/Project2011b/Data/Probability/";
+string basic = "D:/Research/Project2011b/Data/Probability/";
 //string basic = "D:/Research/Project2011b/Data/Separable/";
 //string basic = "D:/Research/Project2011b/Data/Poisson/";
-string basic = "D:/Research/Project2011b/Data/Reasoning/";
+//string basic = "D:/Research/Project2011b/Data/Reasoning/";
 
 int main(int argc, char *argv[])
 {
 	Homography _homography;
 	RX::mat3 _hom;
 	
-	_homography.loadInfo(basic+"MoveInfo.txt");
+	_homography.loadInfo(basic+"Info.txt");
 	
     ofstream out(basic+"Homs.txt");
 	out << _homography.numFrames() << endl;

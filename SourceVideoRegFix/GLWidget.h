@@ -75,9 +75,7 @@ private:
 
 	// auto detect changes
 	unsigned char *buffer, *buffer2;
-	int _minX, _minY, _maxX, _maxY;
-	int _regFrameW, _regFrameH;
-	int _edgeCount;
+	RX::vec3 _translateToFit;
 
 	// opengl
 	GLuint _tex;

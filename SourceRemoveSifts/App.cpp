@@ -4,54 +4,53 @@
 
 using namespace std;
 
-string basic = "D:/Research/Project2011b/Data/Diffmov/";
+string basic = "D:/Research/Project2011b/Data/Probability/";
 
 int main(int argc, char *argv[])
 {
 	int _numFrames, _w, _h;
+	int _numRemoves;
 	int _numMovements;
-	vector<Movement> _movements;
 
-	std::ifstream input(basic+"_MoveInfo.txt");
+	vector<Movement> _movements;
+	vector<BBox> _removes;
+
+	std::ifstream input(basic+"Info.txt");
 
 	input >> _numFrames;
 	input >> _w >> _h;
+	input >> _numMovements;
+	input >> _numRemoves;
 
-	std::ifstream input2(basic+"_LocalBoards.txt");
-	input2 >> _numMovements;
-	
 	for(int i = 0; i < _numMovements; ++i)
 	{
-		_movements.push_back(Movement());
-
-		int start, end, board;
-		input2 >> start >> end >> board;;
-
-		_movements[_movements.size()-1].start = start;
-		_movements[_movements.size()-1].end = end;
-		_movements[_movements.size()-1].board = board;
-
-		for(int j = _movements[_movements.size()-1].start; j <= _movements[_movements.size()-1].end; ++j)
-		{
-			RX::vec2 p1, p2, p3, p4;
-			input2 >> p1 >> p2 >> p3 >> p4;
-			_movements[_movements.size()-1].addBoard(p1, p2, p3, p4);
-		}
 	}
 
+	for(int i = 0; i < _numRemoves; ++i)
+	{
+		int minX, minY, maxX, maxY;
+		input >> minX >> minY >> maxX >> maxY;
+		_removes.push_back(BBox(RX::vec2(minX, minY), RX::vec2(minX, maxY), RX::vec2(maxX, maxY), RX::vec2(maxX, minY)));
+	}
 
 	for(int frame = 0; frame < _numFrames; ++frame)
 	{
 		cout << frame << endl;
 		
-		bool anyActive = false;
-		for(int mov = 0; mov < _numMovements; ++mov) 
+		bool anyActive;
+		if(_numRemoves == 0)
 		{
-			if(_movements[mov].active(frame)) {
-				anyActive = true;
-				break;
+			anyActive = false;
+			for(int mov = 0; mov < _numMovements; ++mov) 
+			{
+				if(_movements[mov].active(frame)) {
+					anyActive = true;
+					break;
+				}
 			}
 		}
+		else
+			anyActive = true;
 
 		if(anyActive)
 		{
@@ -78,6 +77,14 @@ int main(int argc, char *argv[])
 				{
 					if(!(_movements[mov].active(frame))) continue;
 					if(_movements[mov].bbox(frame).isInside(point1-RX::vec2(_w/2, _h/2))) {
+						isInside = true;
+						break;
+					}
+				}
+				// remove sift if it is inside any bbox to be removed
+				for(int rem = 0; rem < _numRemoves; ++rem) 
+				{
+					if(_removes[rem].isInside(point1-RX::vec2(_w/2, _h/2))) {
 						isInside = true;
 						break;
 					}
