@@ -122,7 +122,6 @@ void putRegionTogether()
 			{
 				Region r;
 				r.setColor(RX::vec3(rand()%255, rand()%255, rand()%255));
-				r.setStartingFrame(initialCells[i][j].startingFrame());
 
 				queue< pair<int, int> > q;
 				q.push(pair<int, int>(i, j));
@@ -146,7 +145,7 @@ void putRegionTogether()
 							if(id.second+l >= initialCells[0].size()) continue;
 							
 							// check neighborhood
-							if(!initialCells[id.first+k][id.second+l].used() || initialCells[id.first+k][id.second+l].seen() || abs(r.startingFrame() - initialCells[id.first+k][id.second+l].startingFrame()) > 150)
+							if(!initialCells[id.first+k][id.second+l].used() || initialCells[id.first+k][id.second+l].seen() || abs(initialCells[id.first][id.second].startingFrame() - initialCells[id.first+k][id.second+l].startingFrame()) > 100)
 								continue;
 
 							q.push(pair<int, int>(id.first+k, id.second+l));
@@ -189,9 +188,13 @@ int main(int argc, char *argv[])
 	{
 		_video.getFrame(frame);
 
+		frame.save(folder+"/before.png");
+
 		imgProc.setImage(&frame, 3);
 		imgProc.toGray();
 		imgProc.applyFilter(lap);
+
+		frame.save(folder+"/after.png");
 
 		for(int i = 0; i < initialCells.size(); ++i) 
 		{
@@ -206,7 +209,7 @@ int main(int argc, char *argv[])
 				bool blank = true;
 				for(int k = 0; k < cellSize && blank; ++k) {
 					for(int l = 0; l < cellSize && blank; ++l) {
-						char color = frame.bits()[((startingY+k)*frame.width() + (startingX+l))*4];
+						char color = frame.bits()[((startingY+k)*frame.width() + (startingX+l))*3];
 						if(color > 50) 
 						{
 							blank = false;
@@ -220,6 +223,7 @@ int main(int argc, char *argv[])
 			}
 		}
 		++currentFrame;
+		cout << currentFrame << endl;
 		//if(currentFrame == 1000)
 		//	break;
 	}
