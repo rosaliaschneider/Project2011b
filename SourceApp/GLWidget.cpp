@@ -134,7 +134,7 @@ void GLWidget::mousePressEvent(QMouseEvent *ev)
 			BBox b = (*_regions)[i].boxes()[j];
 			if(b.isInside(mousePosX, mousePosY))
 			{
-				int time = (*_boards)[i].getTime(frame);
+				int time = (*_regions)[i].startingFrame()*100;
 				if(time != -1)
 					_vp->seek(time);
 			}

@@ -53,6 +53,67 @@ void findInitialCells(const QImage &image)
 	}
 }
 
+void putRegionTogether()
+{
+	// put regions together - flood fill
+	for(int i = 0; i < initialCells.size(); ++i)
+	{
+		for(int j = 0; j < initialCells[i].size(); ++j)
+		{
+			if(initialCells[i][j].used() && !initialCells[i][j].seen())
+			{
+				Region r;
+				r.setColor(RX::vec3(rand()%255, rand()%255, rand()%255));
+
+				queue< pair<int, int> > q;
+				q.push(pair<int, int>(i, j));
+				initialCells[i][j].setSeen(true);
+				while(!q.empty())
+				{
+					pair<int, int> id = q.front();
+					q.pop();
+
+					r.addBox(initialCells[id.first][id.second]);
+
+					for(int k = -1; k <= 1; ++k) 
+					{
+						for(int l = -1; l <= 1; ++l) 
+						{
+							// boundary check
+							if(k == 0 && l == 0) continue;
+							if(id.first+k < 0) continue;
+							if(id.first+k >= initialCells.size()) continue;
+							if(id.second+l < 0) continue;
+							if(id.second+l >= initialCells[0].size()) continue;
+							
+							// check neighborhood
+							if(!initialCells[id.first+k][id.second+l].used() || initialCells[id.first+k][id.second+l].seen() || abs(initialCells[id.first][id.second].startingFrame() - initialCells[id.first+k][id.second+l].startingFrame()) > 100)
+								continue;
+
+							q.push(pair<int, int>(id.first+k, id.second+l));
+							initialCells[id.first+k][id.second+l].setSeen(true);
+						}
+					}
+				}
+				regions.push_back(r);
+			}
+		}
+	}
+}
+
+void defineRegionStartingFrame()
+{
+	for(int i = 0; i < regions.size(); ++i)
+	{
+		regions[i].setStartingFrame(regions[i].boxes()[0].startingFrame());
+		for(int j = 1; j < regions[i].boxes().size(); ++j)
+		{
+			if(regions[i].boxes()[0].startingFrame() < regions[i].startingFrame())
+				regions[i].setStartingFrame(regions[i].boxes()[j].startingFrame());
+		}
+	}
+}
+
 void drawRegions(QImage *image, const vector<Region> &regions)
 {
 	int lastTested = -1;
@@ -111,54 +172,6 @@ void drawBoxes(QImage *image, const vector< vector<BBox> > &boxes)
 	}
 }
 
-void putRegionTogether()
-{
-	// put regions together - flood fill
-	for(int i = 0; i < initialCells.size(); ++i)
-	{
-		for(int j = 0; j < initialCells[i].size(); ++j)
-		{
-			if(initialCells[i][j].used() && !initialCells[i][j].seen())
-			{
-				Region r;
-				r.setColor(RX::vec3(rand()%255, rand()%255, rand()%255));
-
-				queue< pair<int, int> > q;
-				q.push(pair<int, int>(i, j));
-				initialCells[i][j].setSeen(true);
-				while(!q.empty())
-				{
-					pair<int, int> id = q.front();
-					q.pop();
-
-					r.addBox(initialCells[id.first][id.second]);
-
-					for(int k = -1; k <= 1; ++k) 
-					{
-						for(int l = -1; l <= 1; ++l) 
-						{
-							// boundary check
-							if(k == 0 && l == 0) continue;
-							if(id.first+k < 0) continue;
-							if(id.first+k >= initialCells.size()) continue;
-							if(id.second+l < 0) continue;
-							if(id.second+l >= initialCells[0].size()) continue;
-							
-							// check neighborhood
-							if(!initialCells[id.first+k][id.second+l].used() || initialCells[id.first+k][id.second+l].seen() || abs(initialCells[id.first][id.second].startingFrame() - initialCells[id.first+k][id.second+l].startingFrame()) > 100)
-								continue;
-
-							q.push(pair<int, int>(id.first+k, id.second+l));
-							initialCells[id.first+k][id.second+l].setSeen(true);
-						}
-					}
-				}
-				regions.push_back(r);
-			}
-		}
-	}
-}
-
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
@@ -188,13 +201,9 @@ int main(int argc, char *argv[])
 	{
 		_video.getFrame(frame);
 
-		frame.save(folder+"/before.png");
-
 		imgProc.setImage(&frame, 3);
 		imgProc.toGray();
 		imgProc.applyFilter(lap);
-
-		frame.save(folder+"/after.png");
 
 		for(int i = 0; i < initialCells.size(); ++i) 
 		{
@@ -224,10 +233,11 @@ int main(int argc, char *argv[])
 		}
 		++currentFrame;
 		cout << currentFrame << endl;
-		//if(currentFrame == 1000)
-		//	break;
 	}
+
+	// define regions from cells
 	putRegionTogether();
+	defineRegionStartingFrame();
 
 	//drawBoxes(&finalFrame, initialCells);
 	drawRegions(&finalFrame, regions);

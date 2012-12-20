@@ -40,7 +40,7 @@ void MainWindow::load()
 		loadFinalFrame((folder+"/FinalFrame.png").toStdString());
 
 		_media = new Phonon::MediaObject();
-		_media->setCurrentSource(Phonon::MediaSource(folder+"/FinalVideo.avi"));
+		_media->setCurrentSource(Phonon::MediaSource(folder+"/Video.avi"));
 
 		ui->widget_2->setRegions(&_regions);
 		ui->widget_2->setBoards(&_finalBoards);

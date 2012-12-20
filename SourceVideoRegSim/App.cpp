@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 	Homography _homography;
 	RX::mat3 _hom;
 	
-	_homography.loadInfo(basic+"MoveInfo.txt");
+	_homography.loadInfo(basic+"Info.txt");
 	
     ofstream out(basic+"Homs.txt");
 	out << _homography.numFrames() << endl;
