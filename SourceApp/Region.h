@@ -14,13 +14,16 @@ public:
 
 	bool isInside(RX::vec2 point) const;
 	int startingFrame() const { return _startingFrame; }
+	RX::vec3 color() const { return _color; }
 	std::vector<BBox> boxes() { return _boxes; }
 
 	void setStartingFrame(int startingFrame) { _startingFrame = startingFrame; }
+	void setColor(RX::vec3 color) { _color = color; }
 
 private:
 	int _startingFrame;
 	std::vector<BBox> _boxes;
+	RX::vec3 _color;
 };
 
 

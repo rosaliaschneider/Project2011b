@@ -29,12 +29,12 @@ void Region::addBoxes(std::vector<BBox> boxes)
 //}
 
 BBox::BBox()
-: _seen(false), _used(false), _startingFrame(-1)
+: _used(false), _startingFrame(-1), _region(-1), _i(0), _j(0)
 {
 }
 
-BBox::BBox(RX::vec2 p1, RX::vec2 p2, RX::vec2 p3, RX::vec2 p4)
-: _seen(false), _used(false), _startingFrame(-1)
+BBox::BBox(RX::vec2 p1, RX::vec2 p2, RX::vec2 p3, RX::vec2 p4, int i, int j)
+: _used(false), _startingFrame(-1), _region(-1), _i(i), _j(j)
 {
 	_p.push_back(p1);
 	_p.push_back(p2);

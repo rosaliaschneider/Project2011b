@@ -96,6 +96,7 @@ void MainWindow::loadRegions(std::string filename)
 		int startingFrame, nboxes;
 		input >> startingFrame >> nboxes;
 		_regions[i].setStartingFrame(startingFrame);
+		_regions[i].setColor(RX::vec3((rand()%255)/255.0, (rand()%255)/255.0, (rand()%255)/255.0));
 
 		for(int j = 0; j < nboxes; ++j) 
 		{
@@ -109,6 +110,7 @@ void MainWindow::loadRegions(std::string filename)
 			_regions[i].addBox(b);
 		}
 	}	
+
 }
 
 void MainWindow::loadIntervals(std::string filename)

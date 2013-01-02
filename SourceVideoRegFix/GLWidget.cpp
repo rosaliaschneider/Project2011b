@@ -137,7 +137,7 @@ void GLWidget::paintGL()
 				}
 			}
 
-			if(count >= 100 && count >= totalCount * 0.7) 
+			if(count >= 100 && count >= totalCount * 0.3) 
 			{
 				char filename[100];
 				sprintf(filename, "test_%d.png", *_currentFrame);

@@ -46,25 +46,29 @@ void MainWindow::quit()
 void MainWindow::load()
 {
 	// Prompt a video to load
-	QString folder = QFileDialog::getExistingDirectory(this, "Load Video");
-	if(!folder.isNull())
-	{
-		_folder = folder.toStdString();
-
-		loadHoms((folder+"/Homs.txt").toStdString());
-		loadInfo((folder+"/Info.txt").toStdString());
-		process();
-				
-		_currentFrame = -1;
-		ui->widget->setCurrentFrame(&_currentFrame);
-		ui->widget->setFrame(&_frame);
-		ui->widget->setHomographies(&_homographies);
-		ui->widget->setGlobalHomographies(&_globalHomographies);
-		ui->widget->setBoards(&_boards);
-		
-		_decoder.openFile(folder+"/Video.avi");
-		next();
+	QString filename = QFileDialog::getOpenFileName(this, "Load Video");
+	if(filename.isNull())
+		return;
+	if(!_decoder.openFile(filename)) {
+		QMessageBox::critical(this, "Error", "Error loading the video");
+		return;
 	}
+	_currentFrame = -1;
+
+	QString folder = filename.left(filename.lastIndexOf("/"));
+	_folder = folder.toStdString();
+
+	loadHoms((folder+"/Homs.txt").toStdString());
+	loadInfo((folder+"/Info.txt").toStdString());
+	process();
+				
+	ui->widget->setCurrentFrame(&_currentFrame);
+	ui->widget->setFrame(&_frame);
+	ui->widget->setHomographies(&_homographies);
+	ui->widget->setGlobalHomographies(&_globalHomographies);
+	ui->widget->setBoards(&_boards);
+	
+	next();
 }
 
 void MainWindow::loadHoms(std::string filename)
@@ -195,6 +199,9 @@ void MainWindow::next()
 			_globalHomographies.push_back(_homographies[0]);
 
 		++_currentFrame;
+
+		if(_currentFrame%100)
+			saveGlobalHoms(_folder+"/GlobalHoms.txt");
 	}
 }
 

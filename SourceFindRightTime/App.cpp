@@ -26,7 +26,7 @@ void findInitialCells(const QImage &image)
 	for(int i = 0; i < cellsY; ++i) {
 		vector<BBox> row;
 		for(int j = 0; j < cellsX; ++j)
-			row.push_back(BBox(vec2(j*cellSize, i*cellSize), vec2((j+1)*cellSize, i*cellSize), vec2((j+1)*cellSize, (i+1)*cellSize), vec2(j*cellSize, (i+1)*cellSize)));
+			row.push_back(BBox(vec2(j*cellSize, i*cellSize), vec2((j+1)*cellSize, i*cellSize), vec2((j+1)*cellSize, (i+1)*cellSize), vec2(j*cellSize, (i+1)*cellSize), i, j));
 
 		initialCells.push_back(row);
 	}
@@ -60,14 +60,14 @@ void putRegionTogether()
 	{
 		for(int j = 0; j < initialCells[i].size(); ++j)
 		{
-			if(initialCells[i][j].used() && !initialCells[i][j].seen())
+			if(initialCells[i][j].used() && initialCells[i][j].region() == -1)
 			{
 				Region r;
 				r.setColor(RX::vec3(rand()%255, rand()%255, rand()%255));
 
 				queue< pair<int, int> > q;
 				q.push(pair<int, int>(i, j));
-				initialCells[i][j].setSeen(true);
+				initialCells[i][j].setRegion(regions.size());
 				while(!q.empty())
 				{
 					pair<int, int> id = q.front();
@@ -87,17 +87,70 @@ void putRegionTogether()
 							if(id.second+l >= initialCells[0].size()) continue;
 							
 							// check neighborhood
-							if(!initialCells[id.first+k][id.second+l].used() || initialCells[id.first+k][id.second+l].seen() || abs(initialCells[id.first][id.second].startingFrame() - initialCells[id.first+k][id.second+l].startingFrame()) > 100)
+							if(!initialCells[id.first+k][id.second+l].used() || initialCells[id.first+k][id.second+l].region() != -1 || abs(initialCells[id.first][id.second].startingFrame() - initialCells[id.first+k][id.second+l].startingFrame()) > 100)
 								continue;
 
 							q.push(pair<int, int>(id.first+k, id.second+l));
-							initialCells[id.first+k][id.second+l].setSeen(true);
+							initialCells[id.first+k][id.second+l].setRegion(regions.size());
 						}
 					}
 				}
 				regions.push_back(r);
 			}
 		}
+	}
+}
+
+void mergeSmallRegions()
+{
+	for(int i = 0; i < regions.size(); ++i)
+	{
+		if(regions[i].boxes().size() > 5) continue;
+
+		int newRegion = -1, newRegionSize = 0;
+		for(int j = 0; j < regions[i].size(); ++j)
+		{
+			BBox b = regions[i].boxes()[j];
+
+			// get biggest neighbor region
+			if(b.i() > 0) {
+				int id = initialCells[b.i()-1][b.j()].region();
+				if(id != -1 && regions[id].size() > newRegionSize) {
+					newRegion = id;
+					newRegionSize = regions[id].size();
+				}
+			}
+			if(b.j() > 0) {
+				int id = initialCells[b.i()][b.j()-1].region();
+				if(id != -1 && regions[id].size() > newRegionSize) {
+					newRegion = id;
+					newRegionSize = regions[id].size();
+				}
+			}
+			if(b.i() < initialCells.size()-1) {
+				int id = initialCells[b.i()+1][b.j()].region();
+				if(id != -1 && regions[id].size() > newRegionSize) {
+					newRegion = id;
+					newRegionSize = regions[id].size();
+				}
+			}
+			if(b.j() < initialCells[0].size()-1) {
+				int id = initialCells[b.i()][b.j()+1].region();
+				if(id != -1 && regions[id].size() > newRegionSize) {
+					newRegion = id;
+					newRegionSize = regions[id].size();
+				}
+			}
+		}
+		// merge
+		if(newRegion != -1)
+			regions[newRegion].addBoxes(regions[i].boxes());
+	}
+	for(int i = 0; i < regions.size(); ++i)
+	{
+		if(regions[i].boxes().size() > 5) continue;
+		regions.erase(regions.begin()+i);
+		--i;
 	}
 }
 
@@ -108,7 +161,7 @@ void defineRegionStartingFrame()
 		regions[i].setStartingFrame(regions[i].boxes()[0].startingFrame());
 		for(int j = 1; j < regions[i].boxes().size(); ++j)
 		{
-			if(regions[i].boxes()[0].startingFrame() < regions[i].startingFrame())
+			if(regions[i].boxes()[j].startingFrame() < regions[i].startingFrame())
 				regions[i].setStartingFrame(regions[i].boxes()[j].startingFrame());
 		}
 	}
@@ -236,8 +289,9 @@ int main(int argc, char *argv[])
 	}
 
 	// define regions from cells
-	putRegionTogether();
-	defineRegionStartingFrame();
+	cout << "Put together" << endl; putRegionTogether();
+	cout << "Merge" << endl; mergeSmallRegions();
+	cout << "Starting frame" << endl; defineRegionStartingFrame();
 
 	//drawBoxes(&finalFrame, initialCells);
 	drawRegions(&finalFrame, regions);

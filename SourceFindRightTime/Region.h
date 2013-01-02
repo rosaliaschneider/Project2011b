@@ -9,16 +9,16 @@ class BBox
 {
 public:
 	BBox();
-	BBox(RX::vec2 p1, RX::vec2 p2, RX::vec2 p3, RX::vec2 p4);
+	BBox(RX::vec2 p1, RX::vec2 p2, RX::vec2 p3, RX::vec2 p4, int i, int j);
 
 	void setX(int point, double value);
 	void setY(int point, double value);
 	void setUsed(bool used) { _used = used; }
-	void setSeen(bool seen) { _seen = seen; }
+	void setRegion(int region) { _region = region; }
 	void setStartingFrame(int startingFrame) { _startingFrame = startingFrame; }
 
 	bool used() const { return _used; }
-	bool seen() const { return _seen; }
+	int region() const { return _region; }
 	int startingFrame() { return _startingFrame; }
 	double getX(int point);
 	double getY(int point);
@@ -26,10 +26,17 @@ public:
 
 	bool isInside(RX::vec2 point) const;
 
+	int i() const { return _i; }
+	int j() const { return _j; }
+
 private:
 	std::vector<RX::vec2> _p;
-	bool _used, _seen;
+	bool _used;
 	int _startingFrame;
+
+	// keep notion of neighborhood
+	int _i, _j;
+	int _region;
 
 };
 
@@ -46,6 +53,8 @@ public:
 	int colorB() const { return _color.z; }
 	int startingFrame() const { return _startingFrame; }
 	std::vector<BBox> boxes() { return _boxes; }
+
+	int size() { return _boxes.size(); }
 
 	void setColor(RX::vec3 color) { _color = color; }
 	void setStartingFrame(int startingFrame) { _startingFrame = startingFrame; }

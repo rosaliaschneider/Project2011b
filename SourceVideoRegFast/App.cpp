@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 		// ESTIMATE MOVEMENT FROM POINTS
 		_homography.loadPoints(frame-1, true);
 		_homography.all();
-		if(_homography.numPoints() >= 20)
+		if(_homography.numPoints() >= 30)
 		{
 			_homography.estimate();
 			_hom = _homography.hom();

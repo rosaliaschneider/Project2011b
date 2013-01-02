@@ -42,23 +42,22 @@ void MainWindow::quit()
 void MainWindow::load()
 {
     // Prompt a video to load
-   QString folder = QFileDialog::getExistingDirectory(this, "Load Video");
-   if(!folder.isNull())
-   {
-	   if(!_decoder.openFile(folder+"/Video.avi")) {
-		  QMessageBox::critical(this, "Error", "Error loading the video");
-		  return;
-	  }
+	QString filename = QFileDialog::getOpenFileName(this, "Load Video");
+	if(filename.isNull())
+		return;
+	if(!_decoder.openFile(filename)) {
+		QMessageBox::critical(this, "Error", "Error loading the video");
+		return;
+	}
+	_currentFrame = -1;
 
-	  _currentFrame = -1;
+	QString folder = filename.left(filename.lastIndexOf("/"));
+	ui->glWidget->setFolder(folder.toStdString());
+	ui->glWidget->setNumberOfBoards(9);
+	ui->glWidget->setFrame(&_frame);
+	ui->glWidget->setCurrentFrame(&_currentFrame);
 
-	  ui->glWidget->setFolder(folder.toStdString());
-	  ui->glWidget->setNumberOfBoards(9);
-	  ui->glWidget->setFrame(&_frame);
-	  ui->glWidget->setCurrentFrame(&_currentFrame);
-
-	  next();
-   }
+	next();
 }
 
 //  Display next frame
@@ -109,7 +108,7 @@ void MainWindow::endMovement()
 
 void MainWindow::saveInfo()
 {
-	ui->glWidget->saveInfo("/MoveInfo.txt");
+	ui->glWidget->saveInfo("/Info.txt");
 }
 
 void MainWindow::selectBoardAndPoint(int board, int point)

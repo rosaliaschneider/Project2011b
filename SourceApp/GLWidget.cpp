@@ -66,14 +66,15 @@ void GLWidget::paintGL()
 
 		if(_region != -1)
 		{
+			glColor4f((*_regions)[_region].color().x, (*_regions)[_region].color().y, (*_regions)[_region].color().z, 0.7f); 
 			for(int i = 0; i < (*_regions)[_region].boxes().size(); ++i)
 			{
 				glBegin(GL_QUADS);
 				BBox box = (*_regions)[_region].boxes()[i];
-				glColor4f(1.0f, 1.0f, 1.0f, 0.5f); glVertex3f(box.points[0].x, box.points[0].y, 1);
-				glColor4f(1.0f, 1.0f, 1.0f, 0.5f); glVertex3f(box.points[1].x, box.points[1].y, 1);
-				glColor4f(1.0f, 1.0f, 1.0f, 0.5f); glVertex3f(box.points[2].x, box.points[2].y, 1);
-				glColor4f(1.0f, 1.0f, 1.0f, 0.5f); glVertex3f(box.points[3].x, box.points[3].y, 1);
+				glVertex3f(box.points[0].x, box.points[0].y, 1);
+				glVertex3f(box.points[1].x, box.points[1].y, 1);
+				glVertex3f(box.points[2].x, box.points[2].y, 1);
+				glVertex3f(box.points[3].x, box.points[3].y, 1);
 				glEnd();
 			}
 		}
