@@ -33,22 +33,19 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
-    <Filter Include="Header Files\Interface">
-      <UniqueIdentifier>{2933ef0f-fbd4-4d98-a0e6-a40295a62540}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Interface">
-      <UniqueIdentifier>{fe88cf1b-9ca4-4eff-9e38-71de9c4c2f54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Info">
-      <UniqueIdentifier>{7286100f-b40f-4a89-944b-82f0c5914d91}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Info">
-      <UniqueIdentifier>{a454ffa9-d679-4f2b-8283-a6b288bcefbd}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\qrc_app.cpp">
       <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Board.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interval.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_MainWindow.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -65,11 +62,8 @@
     <ClCompile Include="GeneratedFiles\Release\moc_VideoPlayer.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_MapWidget.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_MapWidget.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="VideoPlayer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_GLWidget.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -77,29 +71,11 @@
     <ClCompile Include="GeneratedFiles\Release\moc_GLWidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="MapWidget.cpp">
-      <Filter>Source Files\Interface</Filter>
-    </ClCompile>
     <ClCompile Include="GLWidget.cpp">
-      <Filter>Source Files\Interface</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoPlayer.cpp">
-      <Filter>Source Files\Interface</Filter>
-    </ClCompile>
-    <ClCompile Include="MainWindow.cpp">
-      <Filter>Source Files\Interface</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoFromImages.cpp">
-      <Filter>Source Files\Interface</Filter>
-    </ClCompile>
-    <ClCompile Include="Board.cpp">
-      <Filter>Source Files\Info</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Region.cpp">
-      <Filter>Source Files\Info</Filter>
-    </ClCompile>
-    <ClCompile Include="Interval.cpp">
-      <Filter>Source Files\Info</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -109,37 +85,28 @@
     <CustomBuild Include="mainwindow.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="MapWidget.h">
-      <Filter>Header Files\Interface</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GLWidget.h">
-      <Filter>Header Files\Interface</Filter>
+    <CustomBuild Include="MainWindow.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="VideoPlayer.h">
-      <Filter>Header Files\Interface</Filter>
+      <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="MainWindow.h">
-      <Filter>Header Files\Interface</Filter>
+    <CustomBuild Include="GLWidget.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="VideoFromImages.h">
-      <Filter>Header Files\Interface</Filter>
-    </ClInclude>
     <ClInclude Include="Board.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="Region.h">
-      <Filter>Header Files\Info</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Interval.h">
-      <Filter>Header Files\Info</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Info.h">
-      <Filter>Header Files\Info</Filter>
+    <ClInclude Include="Region.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

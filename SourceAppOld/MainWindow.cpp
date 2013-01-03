@@ -42,10 +42,10 @@ void MainWindow::load()
 		_media = new Phonon::MediaObject();
 		_media->setCurrentSource(Phonon::MediaSource(folder+"/Video.avi"));
 
-		ui->wdgOpenGL->setRegions(&_regions);
-		ui->wdgOpenGL->setBoards(&_finalBoards);
-		ui->wdgOpenGL->setFrame(&_frame);
-		ui->wdgOpenGL->setVideoPlayer(ui->wdgVideo);
+		ui->widget_2->setRegions(&_regions);
+		ui->widget_2->setBoards(&_finalBoards);
+		ui->widget_2->setFrame(&_frame);
+		ui->widget_2->setVideoPlayer(ui->widget);
 	}
 }
 
@@ -139,14 +139,14 @@ void MainWindow::next()
 
 void MainWindow::play()
 {
-	ui->wdgVideo->play(_media->currentSource());
+	ui->widget->play(_media->currentSource());
 	ui->btStop->setVisible(true);
 	ui->btPlay->setVisible(false);
 }
 
 void MainWindow::stop()
 {
-	ui->wdgVideo->pause();
+	ui->widget->pause();
 	ui->btStop->setVisible(false);
 	ui->btPlay->setVisible(true);
 }

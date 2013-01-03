@@ -16,6 +16,11 @@ class GLWidget : public QGLWidget
 {
     Q_OBJECT
 
+signals:
+	void selectedBoard(int board);
+	void selectedPoint(int point);
+	void selectedBoardAndPoint(int board, int point);
+
 public slots:
 	void setScale(double scale) { _scale = scale; }  
 
@@ -24,6 +29,7 @@ public:
 	~GLWidget();
 
 	void setFrame(QImage *frame);
+	void setVideoPlayer(VideoPlayer *vp) { _vp = vp; }
 	void setBoards(vector<Board> *boards) { _boards = boards; }
 	void setRegions(vector<Region> *regions) { _regions = regions; }
 

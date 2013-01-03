@@ -1,5 +1,5 @@
-#ifndef __GLWidget_H
-#define __GLWidget_H
+#ifndef __MAPWIDGET_H
+#define __MAPWIDGET_H
 
 #include <vector>
 #include <gl/glew.h>
@@ -12,18 +12,24 @@
 #include "VideoPlayer.h"
 using namespace std;
 
-class GLWidget : public QGLWidget 
+class MapWidget : public QGLWidget 
 {
     Q_OBJECT
+
+signals:
+	void selectedBoard(int board);
+	void selectedPoint(int point);
+	void selectedBoardAndPoint(int board, int point);
 
 public slots:
 	void setScale(double scale) { _scale = scale; }  
 
 public:
-    GLWidget(QWidget* parent = 0);
-	~GLWidget();
+    MapWidget(QWidget* parent = 0);
+	~MapWidget();
 
 	void setFrame(QImage *frame);
+	void setVideoPlayer(VideoPlayer *vp) { _vp = vp; }
 	void setBoards(vector<Board> *boards) { _boards = boards; }
 	void setRegions(vector<Region> *regions) { _regions = regions; }
 
@@ -49,4 +55,4 @@ private:
 	VideoPlayer *_vp;
 };
 
-#endif // __GLWidget_H
+#endif // __MAPWIDGET_H

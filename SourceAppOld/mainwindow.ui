@@ -42,7 +42,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="VideoPlayer" name="wdgVideo" native="true">
+       <widget class="VideoPlayer" name="widget" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -57,19 +57,9 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>0</width>
+          <width>16777215</width>
           <height>16777215</height>
          </size>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="GLWidget" name="wdgMap" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
         </property>
        </widget>
       </item>
@@ -90,7 +80,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="MapWidget" name="wdgOpenGL" native="true">
+       <widget class="GLWidget" name="widget_2" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -400,12 +390,6 @@
    <class>GLWidget</class>
    <extends>QWidget</extends>
    <header>GLWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>MapWidget</class>
-   <extends>QWidget</extends>
-   <header>MapWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
