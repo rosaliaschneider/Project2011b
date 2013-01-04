@@ -13,10 +13,16 @@ public:
 	void addBox(BBox b) { _boxes.push_back(b); }
 
 	bool isInside(RX::vec2 point) const;
+
+	// Gets
 	int startingFrame() const { return _startingFrame; }
+	int nBoxes() const { return _boxes.size(); }
 	RX::vec3 color() const { return _color; }
 	std::vector<BBox> boxes() { return _boxes; }
+	BBox box(int boxNum) { return _boxes[boxNum]; }
 
+
+	// Sets
 	void setStartingFrame(int startingFrame) { _startingFrame = startingFrame; }
 	void setColor(RX::vec3 color) { _color = color; }
 

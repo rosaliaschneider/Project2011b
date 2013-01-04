@@ -1,8 +1,10 @@
+#include <QProgressDialog>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPainter>
 #include <QSound>
-#include "mainwindow.h"
+#include "MainWindow.h"
+#include "Globals.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) 
@@ -34,112 +36,25 @@ void MainWindow::load()
 	QString folder = QFileDialog::getExistingDirectory(this, "Load Video",QString());
 	if(!folder.isNull())
 	{
-		loadBoards((folder+"/FinalBoards.txt").toStdString());
-		loadRegions((folder+"/Regions.txt").toStdString());
-		loadIntervals((folder+"/Intervals.txt").toStdString());
-		loadFinalFrame((folder+"/FinalFrame.png").toStdString());
+		//QProgressDialog progress("Processing...", "Loading Video", 0, 100, this);
+		//progress.setWindowModality(Qt::WindowModal);
 
-		_media = new Phonon::MediaObject();
-		_media->setCurrentSource(Phonon::MediaSource(folder+"/Video.avi"));
-
-		ui->wdgOpenGL->setRegions(&_regions);
-		ui->wdgOpenGL->setBoards(&_finalBoards);
-		ui->wdgOpenGL->setFrame(&_frame);
-		ui->wdgOpenGL->setVideoPlayer(ui->wdgVideo);
-	}
-}
-
-void MainWindow::loadFinalFrame(std::string filename)
-{
-	_frame = QImage(filename.c_str());
-}
-
-void MainWindow::loadBoards(std::string filename)
-{
-	std::ifstream input(filename);
-
-	int nboards, nframes;
-	input >> nframes >>  nboards;
-
-	_finalBoards.clear();
-	_finalBoards.resize(nboards);
-
-	vector<Board> boards(nboards, nframes);
-	for(int j = 0; j < nframes; ++j) 
-	{
-		for(int i = 0; i < nboards; ++i) 
-		{
-			for(int k = 0; k < 4; ++k)
-			{
-				double x, y;
-				input >> x >> y;
-				boards[i].setPos(x, y, k, j);
-			}
-		}
-	}	
-	for(int i = 0; i < boards.size(); ++i)
-		_finalBoards[i] = boards[i];
-}
-
-void MainWindow::loadRegions(std::string filename)
-{
-	std::ifstream input(filename);
-
-	int nregions;
-	input >> nregions;
-
-	_regions.clear();
-	_regions.resize(nregions);
-
-	for(int i = 0; i < nregions; ++i) 
-	{
-		int startingFrame, nboxes;
-		input >> startingFrame >> nboxes;
-		_regions[i].setStartingFrame(startingFrame);
-		_regions[i].setColor(RX::vec3((rand()%255)/255.0, (rand()%255)/255.0, (rand()%255)/255.0));
-
-		for(int j = 0; j < nboxes; ++j) 
-		{
-			BBox b;
-			for(int k = 0; k < 4; ++k)
-			{
-				double x, y;
-				input >> x >> y;
-				b.points[k] = RX::vec2(x, y);
-			}
-			_regions[i].addBox(b);
-		}
-	}	
-
-}
-
-void MainWindow::loadIntervals(std::string filename)
-{
-	std::ifstream input(filename);
-
-	int nboards, nintervals;
-	input >>  nboards;
-
-	for(int i = 0; i < nboards; ++i) 
-	{
-		input >> nintervals;
-		for(int j = 0; j < nintervals; ++j) 
-		{
-			Interval interval;
-			input >> interval.begin >> interval.end >> interval.timeMsec;
-			_finalBoards[i].addInterval(interval);
-		}
+		info.load(folder.toStdString());
+		//progress.setValue(30);
+		resources.load(folder.toStdString());
+		//progress.setValue(100);
 	}
 }
 
 //  Display next frame
 void MainWindow::next()
 {
+
 }
 
 void MainWindow::play()
 {
-	ui->wdgVideo->play(_media->currentSource());
+	ui->wdgVideo->play(resources.audioSource());
 	ui->btStop->setVisible(true);
 	ui->btPlay->setVisible(false);
 }

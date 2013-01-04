@@ -64,7 +64,7 @@
        </widget>
       </item>
       <item>
-       <widget class="GLWidget" name="wdgMap" native="true">
+       <widget class="GLWidget" name="wdgOpenGL" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -90,7 +90,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="MapWidget" name="wdgOpenGL" native="true">
+       <widget class="MapWidget" name="wdgMap" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>

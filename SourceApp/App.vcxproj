@@ -103,9 +103,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_VideoPlayer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Globals.cpp" />
     <ClCompile Include="GLWidget.cpp" />
+    <ClCompile Include="Info.cpp" />
     <ClCompile Include="MapWidget.cpp" />
     <ClCompile Include="Region.cpp" />
+    <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VideoFromImages.cpp" />
     <ClCompile Include="VideoPlayer.cpp" />
     <ClCompile Include="Interval.cpp" />
@@ -141,7 +144,9 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="Info.h" />
+    <ClInclude Include="Resources.h" />
     <ClInclude Include="VideoFromImages.h" />
     <CustomBuild Include="GLWidget.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

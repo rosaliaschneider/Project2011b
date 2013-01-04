@@ -101,6 +101,15 @@
     <ClCompile Include="Interval.cpp">
       <Filter>Source Files\Info</Filter>
     </ClCompile>
+    <ClCompile Include="Resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="app.qrc">
@@ -138,8 +147,14 @@
     <ClInclude Include="Interval.h">
       <Filter>Header Files\Info</Filter>
     </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Info.h">
-      <Filter>Header Files\Info</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

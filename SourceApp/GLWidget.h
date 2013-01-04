@@ -23,10 +23,6 @@ public:
     GLWidget(QWidget* parent = 0);
 	~GLWidget();
 
-	void setFrame(QImage *frame);
-	void setBoards(vector<Board> *boards) { _boards = boards; }
-	void setRegions(vector<Region> *regions) { _regions = regions; }
-
 protected:
 	void initializeGL();
     void paintGL();
@@ -37,11 +33,6 @@ protected:
 	void keyPressEvent(QKeyEvent  *ev);
 
 private:
-	QImage *_frame;
-	vector<Board> *_boards;
-	vector<Region> *_regions;
-	int _board;
-	int _region;
 	double _scale;
 
 	GLuint tex;

@@ -17,9 +17,9 @@ class MapWidget : public QGLWidget
     Q_OBJECT
 
 signals:
-	void selectedBoard(int board);
-	void selectedPoint(int point);
-	void selectedBoardAndPoint(int board, int point);
+	//void selectedBoard(int board);
+	//void selectedPoint(int point);
+	//void selectedBoardAndPoint(int board, int point);
 
 public slots:
 	void setScale(double scale) { _scale = scale; }  
@@ -27,11 +27,6 @@ public slots:
 public:
     MapWidget(QWidget* parent = 0);
 	~MapWidget();
-
-	void setFrame(QImage *frame);
-	void setVideoPlayer(VideoPlayer *vp) { _vp = vp; }
-	void setBoards(vector<Board> *boards) { _boards = boards; }
-	void setRegions(vector<Region> *regions) { _regions = regions; }
 
 protected:
 	void initializeGL();
@@ -43,16 +38,12 @@ protected:
 	void keyPressEvent(QKeyEvent  *ev);
 
 private:
-	QImage *_frame;
-	vector<Board> *_boards;
-	vector<Region> *_regions;
 	int _board;
 	int _region;
 	double _scale;
 
 	GLuint tex;
 	QTimer _timer;
-	VideoPlayer *_vp;
 };
 
 #endif // __MAPWIDGET_H

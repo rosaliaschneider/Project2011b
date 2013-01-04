@@ -5,7 +5,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QSound>
-#include <phonon/mediaobject.h>
+
 #include <RX/mat3.h>
 #include <RX/VideoDecoder.h>
 #include "Board.h"
@@ -38,12 +38,6 @@ private:
 	void loadFinalFrame(std::string filename);
 
     Ui::MainWindow *ui;
-
-	Phonon::MediaObject *_media;
-
-	QImage _frame;
-	std::vector<Board> _finalBoards;
-	std::vector<Region> _regions;
 };
 
 #endif // MAINWINDOW_H

@@ -1,8 +1,9 @@
 #include <QMouseEvent>
 #include "MapWidget.h"
+#include "Globals.h" 
 
 MapWidget::MapWidget(QWidget* parent)
-: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _frame(NULL), _scale(1.0), _board(-1), _region(-1), _regions(NULL)
+: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _scale(1.0), _board(-1), _region(-1)
 {
 	setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 	setMouseTracking(true);
@@ -31,58 +32,66 @@ void MapWidget::initializeGL()
 
 void MapWidget::paintGL()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	if(_frame)
+	static bool first = true;
+
+	QImage image = resources.map();
+	int h = image.height();
+	int w = image.width();
+
+	glEnable(GL_TEXTURE_2D);
+
+	if(first && w != 0)
 	{
-		glEnable(GL_TEXTURE_2D);
+		first = false;
+
 		glBindTexture(GL_TEXTURE_2D, tex);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	
-		int h = _frame->height();
-		int w = _frame->width();
-	
+
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, _frame->bits());
-	
-		RX::vec2 framePos1 = RX::vec2(-w/2, h/2);
-		RX::vec2 framePos2 = RX::vec2(-w/2, -h/2);
-		RX::vec2 framePos3 = RX::vec2(w/2, -h/2);
-		RX::vec2 framePos4 = RX::vec2(w/2, h/2);
-	
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0, 1.0); glVertex3f(framePos1.x*_scale, framePos1.y*_scale, 1);
-		glTexCoord2f(0.0, 0.0); glVertex3f(framePos2.x*_scale, framePos2.y*_scale, 1);
-		glTexCoord2f(1.0, 0.0); glVertex3f(framePos3.x*_scale, framePos3.y*_scale, 1);
-		glTexCoord2f(1.0, 1.0); glVertex3f(framePos4.x*_scale, framePos4.y*_scale, 1);
-		glEnd();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
 
-		glDisable(GL_TEXTURE_2D);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		if(_region != -1)
-		{
-			glColor4f((*_regions)[_region].color().x, (*_regions)[_region].color().y, (*_regions)[_region].color().z, 0.7f); 
-			for(int i = 0; i < (*_regions)[_region].boxes().size(); ++i)
-			{
-				glBegin(GL_QUADS);
-				BBox box = (*_regions)[_region].boxes()[i];
-				glVertex3f(box.points[0].x, box.points[0].y, 1);
-				glVertex3f(box.points[1].x, box.points[1].y, 1);
-				glVertex3f(box.points[2].x, box.points[2].y, 1);
-				glVertex3f(box.points[3].x, box.points[3].y, 1);
-				glEnd();
-			}
-		}
-
-		glDisable(GL_BLEND);
-	
-		glFlush();
 	}
+
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	RX::vec2 framePos1 = RX::vec2(-w/2, h/2);
+	RX::vec2 framePos2 = RX::vec2(-w/2, -h/2);
+	RX::vec2 framePos3 = RX::vec2(w/2, -h/2);
+	RX::vec2 framePos4 = RX::vec2(w/2, h/2);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0, 1.0); glVertex3f(framePos1.x*_scale, framePos1.y*_scale, 1);
+	glTexCoord2f(0.0, 0.0); glVertex3f(framePos2.x*_scale, framePos2.y*_scale, 1);
+	glTexCoord2f(1.0, 0.0); glVertex3f(framePos3.x*_scale, framePos3.y*_scale, 1);
+	glTexCoord2f(1.0, 1.0); glVertex3f(framePos4.x*_scale, framePos4.y*_scale, 1);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//if(_region != -1)
+	//{
+	//	glColor4f((*_regions)[_region].color().x, (*_regions)[_region].color().y, (*_regions)[_region].color().z, 0.7f); 
+	//	for(int i = 0; i < (*_regions)[_region].boxes().size(); ++i)
+	//	{
+	//		glBegin(GL_QUADS);
+	//		BBox box = (*_regions)[_region].boxes()[i];
+	//		glVertex3f(box.points[0].x, box.points[0].y, 1);
+	//		glVertex3f(box.points[1].x, box.points[1].y, 1);
+	//		glVertex3f(box.points[2].x, box.points[2].y, 1);
+	//		glVertex3f(box.points[3].x, box.points[3].y, 1);
+	//		glEnd();
+	//	}
+	//}
+
+	glDisable(GL_BLEND);
+	
+	glFlush();
 }
 
 void MapWidget::resizeGL(int w, int h)
@@ -97,12 +106,6 @@ void MapWidget::resizeGL(int w, int h)
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
-
-void MapWidget::setFrame(QImage *frame)
-{
-	_frame = frame;
-}
-
 
 void MapWidget::keyPressEvent(QKeyEvent  *ev)
 {
@@ -128,16 +131,18 @@ void MapWidget::mousePressEvent(QMouseEvent *ev)
 	//	}
 	//}
 
-	for(int i = 0; i < _regions->size(); ++i)
+	for(int i = 0; i < info.nRegions(); ++i)
 	{
-		for(int j = 0; j < (*_regions)[i].boxes().size(); ++j)
+		Region r = info.region(i);
+		for(int j = 0; j < r.nBoxes(); ++j)
 		{
-			BBox b = (*_regions)[i].boxes()[j];
+			BBox b = r.box(j);
 			if(b.isInside(mousePosX, mousePosY))
 			{
-				int time = (*_regions)[i].startingFrame()*100;
-				if(time != -1)
-					_vp->seek(time);
+				int time = r.startingFrame()*100;
+				//if(time != -1)
+				//	_vp->seek(time);
+				// emit signal
 			}
 		}
 	}
@@ -147,8 +152,6 @@ void MapWidget::mouseMoveEvent(QMouseEvent *ev)
 {
 	int mousePosX = ev->pos().x() - width()/2.0;
 	int mousePosY = ev->pos().y() - height()/2.0;;
-
-	if(!_regions) return;
 
 	_board = -1;
 	//for(int i = 0; i < _boards->size(); ++i)
@@ -161,11 +164,12 @@ void MapWidget::mouseMoveEvent(QMouseEvent *ev)
 	//}
 
 	_region = -1;
-	for(int i = 0; i < _regions->size(); ++i)
+	for(int i = 0; i < info.nRegions(); ++i)
 	{
-		for(int j = 0; j < (*_regions)[i].boxes().size(); ++j)
+		Region r = info.region(i);
+		for(int j = 0; j < r.nBoxes(); ++j)
 		{
-			BBox b = (*_regions)[i].boxes()[j];
+			BBox b = r.box(j);
 			if(b.isInside(mousePosX, mousePosY))
 			{
 				_region = i;
