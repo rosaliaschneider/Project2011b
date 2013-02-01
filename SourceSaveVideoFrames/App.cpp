@@ -140,8 +140,8 @@ int main(int argc, char **argv)
 			h = frame.height();
 			for(int i = 0; i < _numFrames; ++i)
 			{
-				RX::vec3 frameMin = _homographies[i] * RX::vec3(-w/2, -h/2, 1);
-				RX::vec3 frameMax = _homographies[i] * RX::vec3(w/2, h/2, 1);
+				RX::vec3 frameMin = /*_homographies[i] */ RX::vec3(-w/2, -h/2, 1);
+				RX::vec3 frameMax = /*_homographies[i] */ RX::vec3(w/2, h/2, 1);
 				frameMin.divideByZ();
 				frameMax.divideByZ();
 
@@ -162,10 +162,10 @@ int main(int argc, char **argv)
 		sprintf(buf, "_%d.png", currentFrame);
 		out += buf;
 
-		RX::vec3 framePos1 = _homographies[currentFrame] * RX::vec3(-w/2, h/2, 1);
-		RX::vec3 framePos2 = _homographies[currentFrame] * RX::vec3(-w/2, -h/2, 1);
-		RX::vec3 framePos3 = _homographies[currentFrame] * RX::vec3(w/2, -h/2, 1);
-		RX::vec3 framePos4 = _homographies[currentFrame] * RX::vec3(w/2, h/2, 1);
+		RX::vec3 framePos1 = /*_homographies[currentFrame] */ RX::vec3(-w/2, h/2, 1);
+		RX::vec3 framePos2 = /*_homographies[currentFrame] */ RX::vec3(-w/2, -h/2, 1);
+		RX::vec3 framePos3 = /*_homographies[currentFrame] */ RX::vec3(w/2, -h/2, 1);
+		RX::vec3 framePos4 = /*_homographies[currentFrame] */ RX::vec3(w/2, h/2, 1);
 		framePos1.divideByZ();
 		framePos2.divideByZ();
 		framePos3.divideByZ();

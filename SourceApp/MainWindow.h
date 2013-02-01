@@ -8,9 +8,7 @@
 
 #include <RX/mat3.h>
 #include <RX/VideoDecoder.h>
-#include "Board.h"
 #include "Region.h"
-#include "Interval.h"
 
 namespace Ui {
     class MainWindow;
@@ -30,11 +28,11 @@ public slots:
 	void stop();
 	void next();
 	void quit();
+	void goToRegion(int region);
 
 private:
 	void loadBoards(std::string filename);
 	void loadRegions(std::string filename);
-	void loadIntervals(std::string filename);
 	void loadFinalFrame(std::string filename);
 
     Ui::MainWindow *ui;

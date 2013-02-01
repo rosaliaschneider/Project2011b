@@ -7,7 +7,6 @@
 #include <QGLWidget>
 #include <QImage>
 #include <QTimer>
-#include "Board.h"
 #include "Region.h"
 #include "VideoPlayer.h"
 using namespace std;
@@ -17,7 +16,7 @@ class MapWidget : public QGLWidget
     Q_OBJECT
 
 signals:
-	//void selectedBoard(int board);
+	void goToRegion(int region);
 	//void selectedPoint(int point);
 	//void selectedBoardAndPoint(int board, int point);
 

@@ -39,10 +39,22 @@
     <Filter Include="Source Files\Interface">
       <UniqueIdentifier>{fe88cf1b-9ca4-4eff-9e38-71de9c4c2f54}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Info">
+    <Filter Include="Header Files\Homographies">
+      <UniqueIdentifier>{9b31c9d4-4f15-457c-a1c9-5b6fd204d636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Homographies">
+      <UniqueIdentifier>{d923d7ce-eb50-4749-92c1-67a8e11f8b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sifts">
+      <UniqueIdentifier>{fb5a799d-e057-48ff-81f6-1ed84cd6e1c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sifts">
+      <UniqueIdentifier>{b587d921-feba-4476-be0e-f9c23c361b00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Globals">
       <UniqueIdentifier>{7286100f-b40f-4a89-944b-82f0c5914d91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Info">
+    <Filter Include="Header Files\Globals">
       <UniqueIdentifier>{a454ffa9-d679-4f2b-8283-a6b288bcefbd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -89,26 +101,50 @@
     <ClCompile Include="MainWindow.cpp">
       <Filter>Source Files\Interface</Filter>
     </ClCompile>
-    <ClCompile Include="VideoFromImages.cpp">
-      <Filter>Source Files\Interface</Filter>
-    </ClCompile>
-    <ClCompile Include="Board.cpp">
-      <Filter>Source Files\Info</Filter>
-    </ClCompile>
     <ClCompile Include="Region.cpp">
-      <Filter>Source Files\Info</Filter>
+      <Filter>Source Files\Globals</Filter>
     </ClCompile>
-    <ClCompile Include="Interval.cpp">
-      <Filter>Source Files\Info</Filter>
+    <ClCompile Include="Homography.cpp">
+      <Filter>Source Files\Homographies</Filter>
     </ClCompile>
-    <ClCompile Include="Resources.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Ransac.cpp">
+      <Filter>Source Files\Homographies</Filter>
     </ClCompile>
-    <ClCompile Include="Info.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="HomographyDefs.cpp">
+      <Filter>Source Files\Homographies</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Video.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Video.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Video.cpp">
+      <Filter>Source Files\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_HomographyObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_HomographyObj.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="Globals.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="HomographyObj.cpp">
+      <Filter>Source Files\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="Sift.cpp">
+      <Filter>Source Files\Sifts</Filter>
+    </ClCompile>
+    <ClCompile Include="SiftObj.cpp">
+      <Filter>Source Files\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SiftObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SiftObj.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -130,31 +166,43 @@
     <CustomBuild Include="MainWindow.h">
       <Filter>Header Files\Interface</Filter>
     </CustomBuild>
+    <CustomBuild Include="Video.h">
+      <Filter>Header Files\Globals</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HomographyObj.h">
+      <Filter>Header Files\Globals</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SiftObj.h">
+      <Filter>Header Files\Globals</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="VideoFromImages.h">
-      <Filter>Header Files\Interface</Filter>
+    <ClInclude Include="Homography.h">
+      <Filter>Header Files\Homographies</Filter>
     </ClInclude>
-    <ClInclude Include="Board.h">
-      <Filter>Header Files\Info</Filter>
+    <ClInclude Include="Ransac.h">
+      <Filter>Header Files\Homographies</Filter>
     </ClInclude>
-    <ClInclude Include="Region.h">
-      <Filter>Header Files\Info</Filter>
+    <ClInclude Include="HomographyDefs.h">
+      <Filter>Header Files\Homographies</Filter>
     </ClInclude>
-    <ClInclude Include="Interval.h">
-      <Filter>Header Files\Info</Filter>
+    <ClInclude Include="SiftPoint.h">
+      <Filter>Header Files\Sifts</Filter>
     </ClInclude>
     <ClInclude Include="Globals.h">
+      <Filter>Header Files\Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="Region.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Resources.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Sift.h">
+      <Filter>Header Files\Sifts</Filter>
     </ClInclude>
-    <ClInclude Include="Info.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="SiftGPU.h">
+      <Filter>Header Files\Sifts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

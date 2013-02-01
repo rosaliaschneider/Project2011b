@@ -5,6 +5,7 @@
 #include <QSound>
 #include "MainWindow.h"
 #include "Globals.h"
+#include "HomographyObj.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) 
@@ -18,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->btPlay, SIGNAL(clicked()), this, SLOT(play()));
 	connect(ui->btStop, SIGNAL(clicked()), this, SLOT(stop()));
 	connect(ui->btForwardOne, SIGNAL(clicked()), this, SLOT(next()));
+
+	connect(ui->wdgMap, SIGNAL(goToRegion(int)), this, SLOT(goToRegion(int)));
 
 }
 
@@ -36,25 +39,44 @@ void MainWindow::load()
 	QString folder = QFileDialog::getExistingDirectory(this, "Load Video",QString());
 	if(!folder.isNull())
 	{
-		//QProgressDialog progress("Processing...", "Loading Video", 0, 100, this);
-		//progress.setWindowModality(Qt::WindowModal);
+		video.load(folder.toStdString());
+		
+		audio = new Phonon::MediaObject();
+		audio->setCurrentSource(Phonon::MediaSource(folder+"/Video.avi"));
 
-		info.load(folder.toStdString());
-		//progress.setValue(30);
-		resources.load(folder.toStdString());
-		//progress.setValue(100);
+		siftThread = new QThread();
+		siftObj = new SiftObj();
+		siftObj->moveToThread(siftThread);
+		connect(siftThread, SIGNAL(started()), siftObj, SLOT(process()));
+		connect(siftObj, SIGNAL(finished()), siftThread, SLOT(quit()));
+		connect(siftObj, SIGNAL(finished()), siftObj, SLOT(deleteLater()));
+		connect(siftThread, SIGNAL(finished()), siftThread, SLOT(deleteLater()));
+		siftThread->start();
+
+		homThread = new QThread();
+		homObj = new HomographyObj();
+		homObj->setFolder(folder.toStdString());
+		homObj->moveToThread(homThread);
+		connect(homThread, SIGNAL(started()), homObj, SLOT(process()));
+		connect(homObj, SIGNAL(finished()), homThread, SLOT(quit()));
+		connect(homObj, SIGNAL(finished()), homObj, SLOT(deleteLater()));
+		connect(homThread, SIGNAL(finished()), homThread, SLOT(deleteLater()));
+		homThread->start();
+
 	}
 }
 
 //  Display next frame
 void MainWindow::next()
 {
-
 }
 
 void MainWindow::play()
 {
-	ui->wdgVideo->play(resources.audioSource());
+	ui->wdgVideo->play(audio->currentSource());
+	
+	video.play();
+
 	ui->btStop->setVisible(true);
 	ui->btPlay->setVisible(false);
 }
@@ -62,6 +84,20 @@ void MainWindow::play()
 void MainWindow::stop()
 {
 	ui->wdgVideo->pause();
+	
+	video.pause();
+
 	ui->btStop->setVisible(false);
 	ui->btPlay->setVisible(true);
+}
+
+void MainWindow::goToRegion(int region)
+{
+	//Region r = resources.region(region);
+
+	//VideoFromImages *video = resources.videoFromImages();
+	//video->goToFrame(r.startingFrame());
+
+	//ui->wdgVideo->seek(r.startingFrame()*100);
+	ui->wdgOpenGL->jumpTo(region);
 }

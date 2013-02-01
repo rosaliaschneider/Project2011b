@@ -3,7 +3,7 @@
 #include "GLWidget.h"
 
 GLWidget::GLWidget(QWidget* parent)
-: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _scale(1.0)
+: QGLWidget(QGLFormat(QGL::SampleBuffers), parent), _scale(1.0), _bg(NULL), _bgW(0), _bgH(0)
 {
 	setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 	setMouseTracking(true);
@@ -15,6 +15,8 @@ GLWidget::GLWidget(QWidget* parent)
 
 GLWidget::~GLWidget()
 {
+	if(_bg != NULL)
+		delete[] _bg;
 }
 
 void GLWidget::initializeGL()
@@ -26,17 +28,20 @@ void GLWidget::initializeGL()
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_2D, tex);
+	glGenTextures(1, &_texBg);
+	glGenTextures(1, &_texFrame);
 }
 
 void GLWidget::paintGL()
 {
-	QImage image = resources.currentFrame();
-	if(image.width() != 0)
+	static int lastFrameShown = -1;
+
+	QImage image = video.frame();
+	if(image.width() != 0 && homObj->lastReady() >= video.frameNumber())
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, tex);
+
+		glBindTexture(GL_TEXTURE_2D, _texFrame);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	
 		int h = image.height();
@@ -48,16 +53,28 @@ void GLWidget::paintGL()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
 	
-		RX::vec2 framePos1 = RX::vec2(-w/2, h/2);
-		RX::vec2 framePos2 = RX::vec2(-w/2, -h/2);
-		RX::vec2 framePos3 = RX::vec2(w/2, -h/2);
-		RX::vec2 framePos4 = RX::vec2(w/2, h/2);
+		RX::vec3 framePos1 = RX::vec3(-w/2, h/2, 1);
+		RX::vec3 framePos2 = RX::vec3(-w/2, -h/2, 1);
+		RX::vec3 framePos3 = RX::vec3(w/2, -h/2, 1);
+		RX::vec3 framePos4 = RX::vec3(w/2, h/2, 1);
+
+		framePos1 = homObj->hom(video.frameNumber()) * framePos1;
+		framePos2 = homObj->hom(video.frameNumber()) * framePos2;
+		framePos3 = homObj->hom(video.frameNumber()) * framePos3;
+		framePos4 = homObj->hom(video.frameNumber()) * framePos4;
+		framePos1.divideByZ();
+		framePos2.divideByZ();
+		framePos3.divideByZ();
+		framePos4.divideByZ();
+
+		_translate.x = -(clickMap.width() - w)/2;
+		_translate.y = -(clickMap.height() - h)/2;
 	
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.0, 1.0); glVertex3f(framePos1.x*_scale, framePos1.y*_scale, 1);
-		glTexCoord2f(0.0, 0.0); glVertex3f(framePos2.x*_scale, framePos2.y*_scale, 1);
-		glTexCoord2f(1.0, 0.0); glVertex3f(framePos3.x*_scale, framePos3.y*_scale, 1);
-		glTexCoord2f(1.0, 1.0); glVertex3f(framePos4.x*_scale, framePos4.y*_scale, 1);
+		glTexCoord2f(0.0, 1.0); glVertex3f(framePos1.x*_scale, framePos1.y*_scale + _translate.y, 1);
+		glTexCoord2f(0.0, 0.0); glVertex3f(framePos2.x*_scale, framePos2.y*_scale + _translate.y, 1);
+		glTexCoord2f(1.0, 0.0); glVertex3f(framePos3.x*_scale, framePos3.y*_scale + _translate.y, 1);
+		glTexCoord2f(1.0, 1.0); glVertex3f(framePos4.x*_scale, framePos4.y*_scale + _translate.y, 1);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
@@ -86,6 +103,14 @@ void GLWidget::paintGL()
 	}
 }
 
+void GLWidget::moveHorizontally(int howMuch)
+{
+}
+
+void GLWidget::moveVertically(int howMuch)
+{
+}
+
 void GLWidget::resizeGL(int w, int h)
 {
 	glMatrixMode(GL_PROJECTION);
@@ -97,6 +122,10 @@ void GLWidget::resizeGL(int w, int h)
 	glOrtho(-w/2, w/2, h/2, -h/2, -1000, 1000);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
+
+	if(_bg != NULL)
+		delete[] _bg;
+	_bg = new unsigned char[width()*height()*4];
 }
 
 void GLWidget::keyPressEvent(QKeyEvent  *ev)
@@ -174,5 +203,38 @@ void GLWidget::mouseMoveEvent(QMouseEvent *ev)
 
 void GLWidget::mouseReleaseEvent(QMouseEvent *ev)
 {
-
 }
+
+void GLWidget::jumpTo(int region)
+{
+	makeCurrent();
+
+	Region r = regions[region];
+	QImage image = r.image();
+
+	_bgH = image.height();
+	_bgW = image.width();
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, _texBg);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _bgW, _bgH, 0, GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+
+	glClear(GL_COLOR_BUFFER_BIT);
+	RX::vec3 bgPos1 = RX::vec3(-_bgW/2, _bgH/2, 1);
+	RX::vec3 bgPos2 = RX::vec3(-_bgW/2, -_bgH/2, 1);
+	RX::vec3 bgPos3 = RX::vec3(_bgW/2,  -_bgH/2, 1);
+	RX::vec3 bgPos4 = RX::vec3(_bgW/2,  _bgH/2, 1);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0, 1.0); glVertex3f(bgPos1.x, bgPos1.y, 1);
+	glTexCoord2f(0.0, 0.0); glVertex3f(bgPos2.x, bgPos2.y, 1);
+	glTexCoord2f(1.0, 0.0); glVertex3f(bgPos3.x, bgPos3.y, 1);
+	glTexCoord2f(1.0, 1.0); glVertex3f(bgPos4.x, bgPos4.y, 1);
+	glEnd();
+}
+
+

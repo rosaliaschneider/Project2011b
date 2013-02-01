@@ -111,44 +111,44 @@ void GLWidget::paintGL()
 
 		if(*_currentFrame != lastFrameShown)
 		{
-			// keep old
-			memcpy(buffer2, buffer, 1000*1000*4);
-
-			// apply edge detector to frame
-			Filter lap;
-			lap.setLaplacian();
-			ImageProcessor imgProc;
-			imgProc.setImage(_frame, 3);
-			imgProc.toGray();
-			imgProc.applyFilter(lap);
-			// render frame to buffer
-			RX::SoftwareRenderer::render(*_frame, _framePos[0]+_translateToFit, _framePos[1]+_translateToFit, _framePos[2]+_translateToFit, _framePos[3]+_translateToFit, buffer, 1000, 1000, 3, 4);
-
-			// count edge pixels that were in buffer, but now disappeared
-			int count = 0;
-			int totalCount = 0;
-			for(int i = 0; i < 1000; ++i) {
-				for(int j = 0; j < 1000; ++j) {
-					if(buffer2[(i*1000 + j)*4] > 50) {
-						++totalCount;
-						if(buffer[(i*1000 + j)*4] <= 50)
-							++count;
-					}
-				}
-			}
-
-			if(count >= 100 && count >= totalCount * 0.3) 
-			{
-				char filename[100];
-				sprintf(filename, "test_%d.png", *_currentFrame);
-				QImage edges(buffer, 1000, 1000, QImage::Format_RGB32);
-				edges.save(filename);
-
-				startMovingFrame();
-				moveRight(w);
-				correctHomographies();
-				_translateToFit -= RX::vec3(w, 0, 0);
-			}
+		//	// keep old
+		//	memcpy(buffer2, buffer, 1000*1000*4);
+		//
+		//	// apply edge detector to frame
+		//	Filter lap;
+		//	lap.setLaplacian();
+		//	ImageProcessor imgProc;
+		//	imgProc.setImage(_frame, 3);
+		//	imgProc.toGray();
+		//	imgProc.applyFilter(lap);
+		//	// render frame to buffer
+		//	RX::SoftwareRenderer::render(*_frame, _framePos[0]+_translateToFit, _framePos[1]+_translateToFit, _framePos[2]+_translateToFit, _framePos[3]+_translateToFit, buffer, 1000, 1000, 3, 4);
+		//
+		//	// count edge pixels that were in buffer, but now disappeared
+		//	int count = 0;
+		//	int totalCount = 0;
+		//	for(int i = 0; i < 1000; ++i) {
+		//		for(int j = 0; j < 1000; ++j) {
+		//			if(buffer2[(i*1000 + j)*4] > 50) {
+		//				++totalCount;
+		//				if(buffer[(i*1000 + j)*4] <= 50)
+		//					++count;
+		//			}
+		//		}
+		//	}
+		//
+		//	if(count >= 100 && count >= totalCount * 0.3) 
+		//	{
+		//		char filename[100];
+		//		sprintf(filename, "test_%d.png", *_currentFrame);
+		//		QImage edges(buffer, 1000, 1000, QImage::Format_RGB32);
+		//		edges.save(filename);
+		//
+		//		startMovingFrame();
+		//		moveRight(w);
+		//		correctHomographies();
+		//		_translateToFit -= RX::vec3(w, 0, 0);
+		//	}
 
 			lastFrameShown = *_currentFrame;
 		}

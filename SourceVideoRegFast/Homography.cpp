@@ -123,6 +123,13 @@ void Homography::all()
 	}
 }
 
+int Homography::numInliers()
+{
+	int sum = 0;
+	for(int i = 0; i < _n; ++i) 
+		if(_inliers[i]) ++sum;
+	return sum;
+}
 void Homography::loadInfo(std::string filename)
 {
 	std::ifstream input(filename.c_str());

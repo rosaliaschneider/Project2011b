@@ -17,7 +17,7 @@ public:
 	void makeContext();
 	void first(int width, int height, char *bits, int format, int type);
 	void second(int width, int height, char *bits, int format, int type);
-	void match(string filenam);
+	void match(string filename);
 	void printFirst(std::string filename);
 	void printSecond(std::string filename);
 	

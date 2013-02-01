@@ -34,9 +34,8 @@ void MapWidget::paintGL()
 {
 	static bool first = true;
 
-	QImage image = resources.map();
-	int h = image.height();
-	int w = image.width();
+	int h = clickMap.height();
+	int w = clickMap.width();
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -51,7 +50,7 @@ void MapWidget::paintGL()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, clickMap.bits());
 
 	}
 
@@ -131,18 +130,15 @@ void MapWidget::mousePressEvent(QMouseEvent *ev)
 	//	}
 	//}
 
-	for(int i = 0; i < info.nRegions(); ++i)
+	for(int i = 0; i < regions.size(); ++i)
 	{
-		Region r = info.region(i);
+		Region r = regions[i];
 		for(int j = 0; j < r.nBoxes(); ++j)
 		{
-			BBox b = r.box(j);
-			if(b.isInside(mousePosX, mousePosY))
+			RX::BBox b = r.box(j);
+			if(b.isInside(RX::vec2(mousePosX, mousePosY)))
 			{
-				int time = r.startingFrame()*100;
-				//if(time != -1)
-				//	_vp->seek(time);
-				// emit signal
+				emit goToRegion(i);
 			}
 		}
 	}
@@ -164,13 +160,13 @@ void MapWidget::mouseMoveEvent(QMouseEvent *ev)
 	//}
 
 	_region = -1;
-	for(int i = 0; i < info.nRegions(); ++i)
+	for(int i = 0; i < regions.size(); ++i)
 	{
-		Region r = info.region(i);
+		Region r = regions[i];
 		for(int j = 0; j < r.nBoxes(); ++j)
 		{
-			BBox b = r.box(j);
-			if(b.isInside(mousePosX, mousePosY))
+			RX::BBox b = r.box(j);
+			if(b.isInside(RX::vec2(mousePosX, mousePosY)))
 			{
 				_region = i;
 				break;
@@ -183,5 +179,4 @@ void MapWidget::mouseMoveEvent(QMouseEvent *ev)
 
 void MapWidget::mouseReleaseEvent(QMouseEvent *ev)
 {
-
 }

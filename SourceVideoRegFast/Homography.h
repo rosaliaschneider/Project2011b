@@ -32,6 +32,7 @@ public:
 	// select which points to use
 	void all();
 	int numPoints() { return _x1[0].size(); }
+	int numInliers();
 
 	inline RX::mat3 hom() { return _hom; }
 	inline vector<bool> inliers() { return _inliers; }

@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	connect(&_timer, SIGNAL(timeout()), this, SLOT(next()));
 
-	_timer.setInterval(50);
+	_timer.setInterval(30);
 }
 
 MainWindow::~MainWindow()
@@ -200,8 +200,8 @@ void MainWindow::next()
 
 		++_currentFrame;
 
-		if(_currentFrame%100)
-			saveGlobalHoms(_folder+"/GlobalHoms.txt");
+		//if(_currentFrame%100)
+		//	saveGlobalHoms(_folder+"/GlobalHoms.txt");
 	}
 }
 

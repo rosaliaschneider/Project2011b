@@ -12,8 +12,6 @@
 #include <QMouseEvent>
 #include <Phonon/mediaobject.h>
 #include <Phonon/videoplayer.h>
-#include "Board.h"
-#include "Interval.h"
 
 class VideoPlayer : public Phonon::VideoPlayer
 {
@@ -23,15 +21,11 @@ public:
     VideoPlayer(QWidget* parent = 0);
 	~VideoPlayer();
 
-	void setBoards(vector<Board> *boards) { _boards = boards; }
-
 protected:
 	virtual void mousePressEvent(QMouseEvent *ev);
 	virtual void mouseMoveEvent(QMouseEvent *ev);
-
+	
 private:
-	vector<Board> *_boards;
-
 };
 
 #endif // __VIDEOPLAYER_H
