@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->btForwardOne, SIGNAL(clicked()), this, SLOT(next()));
 
 	connect(ui->wdgMap, SIGNAL(goToRegion(int)), this, SLOT(goToRegion(int)));
+	connect(ui->wdgOpenGL, SIGNAL(goToFrame(int)), this, SLOT(goToFrame(int)));
 
 }
 
@@ -100,4 +101,11 @@ void MainWindow::goToRegion(int region)
 
 	//ui->wdgVideo->seek(r.startingFrame()*100);
 	ui->wdgOpenGL->jumpTo(region);
+}
+
+void MainWindow::goToFrame(int frame)
+{
+	video.goToFrame(frame);
+	ui->wdgVideo->seek(frame*100);
+	//ui->wdgOpenGL->jumpTo(region);
 }

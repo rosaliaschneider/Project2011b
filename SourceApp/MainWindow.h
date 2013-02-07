@@ -29,6 +29,7 @@ public slots:
 	void next();
 	void quit();
 	void goToRegion(int region);
+	void goToFrame(int frame);
 
 private:
 	void loadBoards(std::string filename);

@@ -42,18 +42,21 @@ void Sift::initialize()
 	matcher->VerifyContextGL(); //must call once
 }
 
-void Sift::first(int width, int height, char *bits, int format, int type, vector<SiftPoint> *siftPoints)
+void Sift::first(int width, int height, char *bits, int format, int type, int frame, vector<SiftPoint> *siftPoints)
 {
 	if(sift->RunSIFT(width, height, bits, format, type))
     {
         num1 = sift->GetFeatureNum();
         keys1.resize(num1);    
 		descriptors1.resize(128*num1);
-        sift->GetFeatureVector(&keys1[0], &descriptors1[0]);         
+        sift->GetFeatureVector(&keys1[0], &descriptors1[0]);
     }
+	siftPoints->resize(num1);
+	for(int i = 0; i < num1; ++i)
+		(*siftPoints)[i] = SiftPoint(keys1[i].x, keys1[i].y, frame);
 }
 
-void Sift::second(int width, int height, char *bits, int format, int type, vector<SiftPoint> *siftPoints)
+void Sift::second(int width, int height, char *bits, int format, int type, int frame, vector<SiftPoint> *siftPoints)
 {
 	if(sift->RunSIFT(width, height, bits, format, type))
     {
@@ -62,6 +65,17 @@ void Sift::second(int width, int height, char *bits, int format, int type, vecto
 		descriptors2.resize(128*num2);
         sift->GetFeatureVector(&keys2[0], &descriptors2[0]);
     }
+
+	siftPoints->resize(num2);
+	for(int i = 0; i < num2; ++i)
+		(*siftPoints)[i] = SiftPoint(keys2[i].x, keys2[i].y, frame);
+}
+
+void Sift::copySecondToFirst()
+{
+	num1 = num2;
+	keys1 = keys2;
+	descriptors1 = descriptors2;
 }
 
 void Sift::printFirst(std::string filename)
@@ -90,7 +104,7 @@ void Sift::printSecond(std::string filename)
 	}
 }
 
-void Sift::match(vector<pair<int, int> > *matches)
+void Sift::match(vector<pair<int, int> > *matches, vector<SiftPoint> *_sifts, const vector<SiftPoint> &_oldSifts)
 {
 	matcher->SetDescriptors(0, num1, &descriptors1[0]); //image 1
     matcher->SetDescriptors(1, num2, &descriptors2[0]); //image 2
@@ -101,8 +115,12 @@ void Sift::match(vector<pair<int, int> > *matches)
     int num_match = matcher->GetSiftMatch(num1, match_buf);
         
     // enumerate all the feature matches
-    for(int i  = 0; i < num_match; ++i)
+
+    for(int i  = 0; i < num_match; ++i) {
         matches->push_back(pair<int, int>(match_buf[i][0], match_buf[i][1]));
+		(*_sifts)[match_buf[i][1]].firstFrame = _oldSifts[match_buf[i][0]].firstFrame;
+		
+	}
     
 	delete[] match_buf;
 }  

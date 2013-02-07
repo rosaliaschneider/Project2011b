@@ -17,9 +17,12 @@ public:
 
 	void initialize();
 	void makeContext();
-	void first(int width, int height, char *bits, int format, int type, vector<SiftPoint> *siftPoints);
-	void second(int width, int height, char *bits, int format, int type, vector<SiftPoint> *siftPoints);
-	void match(std::vector< std::pair<int, int> > *matches);
+	
+	void first(int width, int height, char *bits, int format, int type, int frame, std::vector<SiftPoint> *siftPoints);
+	void second(int width, int height, char *bits, int format, int type, int frame, std::vector<SiftPoint> *siftPoints);
+	void copySecondToFirst();
+
+	void match(std::vector<std::pair<int, int> > *matches, std::vector<SiftPoint> *_sifts, const std::vector<SiftPoint> &_oldSifts);
 	void printFirst(std::string filename);
 	void printSecond(std::string filename);
 	
@@ -27,8 +30,8 @@ private:
 	SiftGPU *sift;
     SiftMatchGPU *matcher;
 
-	vector<float> descriptors1, descriptors2;
-    vector<SiftGPU::SiftKeypoint> keys1, keys2;    
+	std::vector<float> descriptors1, descriptors2;
+    std::vector<SiftGPU::SiftKeypoint> keys1, keys2;    
     int num1, num2;
 
 };

@@ -11,6 +11,8 @@ GLWidget::GLWidget(QWidget* parent)
 	connect(&_timer, SIGNAL(timeout()), this, SLOT(updateGL()));
 	_timer.setInterval(15);
 	_timer.start();
+
+	log = ofstream("log.txt");
 }
 
 GLWidget::~GLWidget()
@@ -67,14 +69,14 @@ void GLWidget::paintGL()
 		framePos3.divideByZ();
 		framePos4.divideByZ();
 
-		_translate.x = -(clickMap.width() - w)/2;
-		_translate.y = -(clickMap.height() - h)/2;
+		_translate.x = 0;//-(clickMap.width() - w)/2;
+		_translate.y = 0;//-(clickMap.height() - h)/2;
 	
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.0, 1.0); glVertex3f(framePos1.x*_scale, framePos1.y*_scale + _translate.y, 1);
-		glTexCoord2f(0.0, 0.0); glVertex3f(framePos2.x*_scale, framePos2.y*_scale + _translate.y, 1);
-		glTexCoord2f(1.0, 0.0); glVertex3f(framePos3.x*_scale, framePos3.y*_scale + _translate.y, 1);
-		glTexCoord2f(1.0, 1.0); glVertex3f(framePos4.x*_scale, framePos4.y*_scale + _translate.y, 1);
+		glTexCoord2f(0.0, 1.0); glVertex3f(framePos1.x*_scale + _translate.y, framePos1.y*_scale + _translate.y, 1);
+		glTexCoord2f(0.0, 0.0); glVertex3f(framePos2.x*_scale + _translate.y, framePos2.y*_scale + _translate.y, 1);
+		glTexCoord2f(1.0, 0.0); glVertex3f(framePos3.x*_scale + _translate.y, framePos3.y*_scale + _translate.y, 1);
+		glTexCoord2f(1.0, 1.0); glVertex3f(framePos4.x*_scale + _translate.y, framePos4.y*_scale + _translate.y, 1);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
@@ -128,113 +130,66 @@ void GLWidget::resizeGL(int w, int h)
 	_bg = new unsigned char[width()*height()*4];
 }
 
-void GLWidget::keyPressEvent(QKeyEvent  *ev)
-{
-
-}
-
 void GLWidget::mousePressEvent(QMouseEvent *ev)
 {
-	int mousePosX = ev->pos().x() - width()/2.0;
-	int mousePosY = ev->pos().y() - height()/2.0;;
+	int mousePosX = ev->pos().x() - width()/2.0 + video.width()/2;
+	int mousePosY = ev->pos().y() - height()/2.0 + video.height()/2;
 
-	//unsigned long milliseconds = this->currentTime();
-	unsigned int frame = 10;//milliseconds/100;
+	int siftFrom = std::min(video.frameNumber(), siftObj->lastReady());
+	
+	int minDistance = 999999;
+	int index = 0;
+	int px, py;
+	for(int i = 0; i < siftObj->numPoints(siftFrom); ++i)
+	{
+		int x = siftObj->siftPoints(siftFrom, i, 0);
+		int y = siftObj->siftPoints(siftFrom, i, 1);
 
-	//for(int i = 0; i < _boards->size(); ++i)
-	//{
-	//	BBox b = (*_boards)[i].getPosition(frame);
-	//	if(b.isInside(mousePosX, mousePosY))
-	//	{
-	//		int time = (*_boards)[i].getTime(frame);
-	//		if(time != -1)
-	//			_vp->seek(time);
-	//	}
-	//}
+		int distance = (mousePosX-x)*(mousePosX-x) + (mousePosY-y)*(mousePosY-y);
+		if(distance < minDistance)
+		{
+			minDistance = distance;
+			index = i;
+			px = x;
+			py = y;
+		}
+	}
+	emit goToFrame(siftObj->siftFrame(siftFrom, index));
+	log << siftFrom << " " << mousePosX << " " << mousePosY << std::endl;
+	log << siftFrom << " " << px << " " << py << " - " << siftObj->siftFrame(siftFrom, index) << std::endl;
 
-	//for(int i = 0; i < _regions->size(); ++i)
-	//{
-	//	for(int j = 0; j < (*_regions)[i].boxes().size(); ++j)
-	//	{
-	//		BBox b = (*_regions)[i].boxes()[j];
-	//		if(b.isInside(mousePosX, mousePosY))
-	//		{
-	//			int time = (*_regions)[i].startingFrame()*100;
-	//			if(time != -1)
-	//				_vp->seek(time);
-	//		}
-	//	}
-	//}
-}
-
-void GLWidget::mouseMoveEvent(QMouseEvent *ev)
-{
-	//int mousePosX = ev->pos().x() - width()/2.0;
-	//int mousePosY = ev->pos().y() - height()/2.0;;
-	//
-	//if(!_regions) return;
-	//
-	//_board = -1;
-	////for(int i = 0; i < _boards->size(); ++i)
-	////{
-	////	BBox b = (*_boards)[i].getPosition(0);
-	////	if(b.isInside(mousePosX, mousePosY))
-	////	{
-	////		_board = i;
-	////	}
-	////}
-	//
-	//_region = -1;
-	//for(int i = 0; i < _regions->size(); ++i)
-	//{
-	//	for(int j = 0; j < (*_regions)[i].boxes().size(); ++j)
-	//	{
-	//		BBox b = (*_regions)[i].boxes()[j];
-	//		if(b.isInside(mousePosX, mousePosY))
-	//		{
-	//			_region = i;
-	//			break;
-	//		}
-	//	}
-	//	if(_region != -1)
-	//		break;
-	//}
-}
-
-void GLWidget::mouseReleaseEvent(QMouseEvent *ev)
-{
 }
 
 void GLWidget::jumpTo(int region)
 {
-	makeCurrent();
-
-	Region r = regions[region];
-	QImage image = r.image();
-
-	_bgH = image.height();
-	_bgW = image.width();
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, _texBg);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _bgW, _bgH, 0, GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
-
-	glClear(GL_COLOR_BUFFER_BIT);
-	RX::vec3 bgPos1 = RX::vec3(-_bgW/2, _bgH/2, 1);
-	RX::vec3 bgPos2 = RX::vec3(-_bgW/2, -_bgH/2, 1);
-	RX::vec3 bgPos3 = RX::vec3(_bgW/2,  -_bgH/2, 1);
-	RX::vec3 bgPos4 = RX::vec3(_bgW/2,  _bgH/2, 1);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f(bgPos1.x, bgPos1.y, 1);
-	glTexCoord2f(0.0, 0.0); glVertex3f(bgPos2.x, bgPos2.y, 1);
-	glTexCoord2f(1.0, 0.0); glVertex3f(bgPos3.x, bgPos3.y, 1);
-	glTexCoord2f(1.0, 1.0); glVertex3f(bgPos4.x, bgPos4.y, 1);
-	glEnd();
+	//makeCurrent();
+	//
+	//Region r = regions[region];
+	//QImage image = r.image();
+	//
+	//_bgH = image.height();
+	//_bgW = image.width();
+	//
+	//glEnable(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, _texBg);
+	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _bgW, _bgH, 0, GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+	//
+	//glClear(GL_COLOR_BUFFER_BIT);
+	//RX::vec3 bgPos1 = RX::vec3(-_bgW/2, _bgH/2, 1);
+	//RX::vec3 bgPos2 = RX::vec3(-_bgW/2, -_bgH/2, 1);
+	//RX::vec3 bgPos3 = RX::vec3(_bgW/2,  -_bgH/2, 1);
+	//RX::vec3 bgPos4 = RX::vec3(_bgW/2,  _bgH/2, 1);
+	//glBegin(GL_QUADS);
+	//glTexCoord2f(0.0, 1.0); glVertex3f(bgPos1.x, bgPos1.y, 1);
+	//glTexCoord2f(0.0, 0.0); glVertex3f(bgPos2.x, bgPos2.y, 1);
+	//glTexCoord2f(1.0, 0.0); glVertex3f(bgPos3.x, bgPos3.y, 1);
+	//glTexCoord2f(1.0, 1.0); glVertex3f(bgPos4.x, bgPos4.y, 1);
+	//glEnd();
 }
 
 

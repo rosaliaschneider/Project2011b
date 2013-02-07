@@ -18,6 +18,9 @@ public:
 	int frameNumber() { return _frameNumber; }
 	int totalFrames() { return _totalFrames; }
 
+	int width() { return _frame.width(); }
+	int height() { return _frame.height(); }
+
 public slots:
 	void goToFrame(int number);
 	void next();

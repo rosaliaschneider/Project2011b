@@ -5,8 +5,18 @@
 
 struct SiftPoint
 {
+	SiftPoint()
+	: pos(0, 0)
+	{
+	}
+
 	SiftPoint(double x, double y)
 	: pos(x, y)
+	{
+	}
+
+	SiftPoint(double x, double y, int frame)
+	: pos(x, y), firstFrame(frame)
 	{
 	}
 

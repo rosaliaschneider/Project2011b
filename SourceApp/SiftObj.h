@@ -16,7 +16,10 @@ public:
 	
 	// Gets
 	const int lastReady() const { return _lastReady; }
+
 	const double siftPoints(int file, int sift, int xy);
+	const int siftFrame(int file, int sift);
+
 	const int numPoints(int file) const { return _sifts[file].size(); }
 	const int numMatches(int file) const { return _matches[file].size(); }
 	const std::pair<int, int> match(int file, int index) const { return _matches[file][index]; }
