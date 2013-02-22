@@ -28,8 +28,10 @@ public slots:
 	void stop();
 	void next();
 	void quit();
-	void goToRegion(int region);
 	void goToFrame(int frame);
+
+	void horizontalScroll(int value);
+	void verticalScroll(int value);
 
 private:
 	void loadBoards(std::string filename);

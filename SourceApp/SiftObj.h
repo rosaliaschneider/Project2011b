@@ -32,6 +32,7 @@ signals:
     void error(QString err);
 
 private:
+	std::vector<SiftPoint> _globalSifts;
 	std::vector< std::vector<SiftPoint> > _sifts;
     std::vector< std::vector< std::pair<int, int> > > _matches;
 	int _lastReady;

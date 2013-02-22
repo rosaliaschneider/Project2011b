@@ -20,8 +20,10 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->btStop, SIGNAL(clicked()), this, SLOT(stop()));
 	connect(ui->btForwardOne, SIGNAL(clicked()), this, SLOT(next()));
 
-	connect(ui->wdgMap, SIGNAL(goToRegion(int)), this, SLOT(goToRegion(int)));
 	connect(ui->wdgOpenGL, SIGNAL(goToFrame(int)), this, SLOT(goToFrame(int)));
+
+	connect(ui->horScroll, SIGNAL(valueChanged(int)), this, SLOT(horizontalScroll(int)));
+	connect(ui->vertScroll, SIGNAL(valueChanged(int)), this, SLOT(verticalScroll(int)));
 
 }
 
@@ -75,9 +77,7 @@ void MainWindow::next()
 void MainWindow::play()
 {
 	ui->wdgVideo->play(audio->currentSource());
-	
 	video.play();
-
 	ui->btStop->setVisible(true);
 	ui->btPlay->setVisible(false);
 }
@@ -85,27 +85,26 @@ void MainWindow::play()
 void MainWindow::stop()
 {
 	ui->wdgVideo->pause();
-	
 	video.pause();
-
 	ui->btStop->setVisible(false);
 	ui->btPlay->setVisible(true);
-}
-
-void MainWindow::goToRegion(int region)
-{
-	//Region r = resources.region(region);
-
-	//VideoFromImages *video = resources.videoFromImages();
-	//video->goToFrame(r.startingFrame());
-
-	//ui->wdgVideo->seek(r.startingFrame()*100);
-	ui->wdgOpenGL->jumpTo(region);
 }
 
 void MainWindow::goToFrame(int frame)
 {
 	video.goToFrame(frame);
 	ui->wdgVideo->seek(frame*100);
-	//ui->wdgOpenGL->jumpTo(region);
+}
+
+
+void MainWindow::horizontalScroll(int value)
+{
+	stop();
+	ui->wdgOpenGL->moveHorizontally(value);
+}
+
+void MainWindow::verticalScroll(int value)
+{
+	stop();
+	ui->wdgOpenGL->moveVertically(value);
 }

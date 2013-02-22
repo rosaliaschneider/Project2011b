@@ -39,8 +39,10 @@ void GLWidget::paintGL()
 	static int lastFrameShown = -1;
 
 	QImage image = video.frame();
-	if(image.width() != 0 && homObj->lastReady() >= video.frameNumber())
+	if(image.width() != 0 && lastFrameShown != video.frameNumber() && homObj->lastReady() >= video.frameNumber())
 	{
+		lastFrameShown = video.frameNumber();
+
 		glEnable(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, _texFrame);
@@ -68,38 +70,15 @@ void GLWidget::paintGL()
 		framePos2.divideByZ();
 		framePos3.divideByZ();
 		framePos4.divideByZ();
-
-		_translate.x = 0;//-(clickMap.width() - w)/2;
-		_translate.y = 0;//-(clickMap.height() - h)/2;
 	
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.0, 1.0); glVertex3f(framePos1.x*_scale + _translate.y, framePos1.y*_scale + _translate.y, 1);
-		glTexCoord2f(0.0, 0.0); glVertex3f(framePos2.x*_scale + _translate.y, framePos2.y*_scale + _translate.y, 1);
-		glTexCoord2f(1.0, 0.0); glVertex3f(framePos3.x*_scale + _translate.y, framePos3.y*_scale + _translate.y, 1);
-		glTexCoord2f(1.0, 1.0); glVertex3f(framePos4.x*_scale + _translate.y, framePos4.y*_scale + _translate.y, 1);
+		glTexCoord2f(0.0, 1.0); glVertex3f(framePos1.x*_scale + _translate.x, framePos1.y*_scale + _translate.y, 1);
+		glTexCoord2f(0.0, 0.0); glVertex3f(framePos2.x*_scale + _translate.x, framePos2.y*_scale + _translate.y, 1);
+		glTexCoord2f(1.0, 0.0); glVertex3f(framePos3.x*_scale + _translate.x, framePos3.y*_scale + _translate.y, 1);
+		glTexCoord2f(1.0, 1.0); glVertex3f(framePos4.x*_scale + _translate.x, framePos4.y*_scale + _translate.y, 1);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
-
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//
-		//if(_region != -1)
-		//{
-		//	glColor4f((*_regions)[_region].color().x, (*_regions)[_region].color().y, (*_regions)[_region].color().z, 0.7f); 
-		//	for(int i = 0; i < (*_regions)[_region].boxes().size(); ++i)
-		//	{
-		//		glBegin(GL_QUADS);
-		//		BBox box = (*_regions)[_region].boxes()[i];
-		//		glVertex3f(box.points[0].x, box.points[0].y, 1);
-		//		glVertex3f(box.points[1].x, box.points[1].y, 1);
-		//		glVertex3f(box.points[2].x, box.points[2].y, 1);
-		//		glVertex3f(box.points[3].x, box.points[3].y, 1);
-		//		glEnd();
-		//	}
-		//}
-		//
-		//glDisable(GL_BLEND);
 	
 		glFlush();
 	}
@@ -107,10 +86,59 @@ void GLWidget::paintGL()
 
 void GLWidget::moveHorizontally(int howMuch)
 {
+	makeCurrent();
+
+	int oldTranslate = _translate.x;
+	_translate.x = (int)(width()*((howMuch-50)/100.0));
+
+	glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, _bg);
+	
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, _texBg);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, _bg);
+	
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0, 1.0); glVertex3f(-width()/2 + _translate.x - oldTranslate, -height()/2, 1);
+	glTexCoord2f(0.0, 0.0); glVertex3f(-width()/2 + _translate.x - oldTranslate, height()/2, 1);
+	glTexCoord2f(1.0, 0.0); glVertex3f(width()/2 + _translate.x - oldTranslate,  height()/2, 1);
+	glTexCoord2f(1.0, 1.0); glVertex3f(width()/2 + _translate.x- oldTranslate,  -height()/2, 1);
+	glEnd();
+
 }
 
 void GLWidget::moveVertically(int howMuch)
 {
+	makeCurrent();
+
+	int oldTranslate = _translate.y;
+	_translate.y = (int)(height()*((howMuch-50)/100.0));
+
+	glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, _bg);
+	
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, _texBg);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, _bg);
+	
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0, 1.0); glVertex3f(-width()/2, -height()/2 + _translate.y - oldTranslate, 1);
+	glTexCoord2f(0.0, 0.0); glVertex3f(-width()/2, height()/2 + _translate.y - oldTranslate, 1);
+	glTexCoord2f(1.0, 0.0); glVertex3f(width()/2,  height()/2 + _translate.y - oldTranslate, 1);
+	glTexCoord2f(1.0, 1.0); glVertex3f(width()/2,  -height()/2 + _translate.y - oldTranslate, 1);
+	glEnd();
 }
 
 void GLWidget::resizeGL(int w, int h)
