@@ -22,7 +22,7 @@ public:
 	void second(int width, int height, char *bits, int format, int type, int frame, std::vector<SiftPoint> *siftPoints);
 	void copySecondToFirst();
 
-	void match(std::vector<std::pair<int, int> > *matches, std::vector<SiftPoint> *_sifts, const std::vector<SiftPoint> &_oldSifts);
+	void match(std::vector<std::pair<int, int> > *matches);
 	void printFirst(std::string filename);
 	void printSecond(std::string filename);
 	

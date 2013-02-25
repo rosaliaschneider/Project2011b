@@ -104,7 +104,7 @@ void Sift::printSecond(std::string filename)
 	}
 }
 
-void Sift::match(vector<pair<int, int> > *matches, vector<SiftPoint> *_sifts, const vector<SiftPoint> &_oldSifts)
+void Sift::match(vector<pair<int, int> > *matches)
 {
 	matcher->SetDescriptors(0, num1, &descriptors1[0]); //image 1
     matcher->SetDescriptors(1, num2, &descriptors2[0]); //image 2
@@ -115,12 +115,8 @@ void Sift::match(vector<pair<int, int> > *matches, vector<SiftPoint> *_sifts, co
     int num_match = matcher->GetSiftMatch(num1, match_buf);
         
     // enumerate all the feature matches
-
-    for(int i  = 0; i < num_match; ++i) {
+    for(int i  = 0; i < num_match; ++i)
         matches->push_back(pair<int, int>(match_buf[i][0], match_buf[i][1]));
-		(*_sifts)[match_buf[i][1]].firstFrame = _oldSifts[match_buf[i][0]].firstFrame;
-		
-	}
     
 	delete[] match_buf;
 }  

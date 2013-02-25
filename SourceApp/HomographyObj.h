@@ -4,6 +4,7 @@
 #include <vector>
 #include <RX/mat3.h>
 #include <QObject>
+#include "SiftPoint.h"
 
 class HomographyObj : public QObject 
 {
@@ -28,6 +29,7 @@ signals:
     void error(QString err);
 
 private:
+	std::vector<SiftPoint> _globalSifts;
     std::vector<RX::mat3> _homographies;
 	int _lastReady;
 	std::string _folder;

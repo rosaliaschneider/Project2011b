@@ -1,3 +1,4 @@
+#include <RX/BBox.h>
 #include "Globals.h"
 #include "Homography.h"
 #include "HomographyObj.h"
@@ -18,7 +19,6 @@ void HomographyObj::process()
 	RX::mat3 _hom;
 	
 	_homography.loadInfo(_folder+"/Info.txt");
-	//_homography.setSiftFolder(_folder+"/Sifts/");
 
 	_hom.setIdentity();
 	_homographies.push_back(_hom);
@@ -43,6 +43,19 @@ void HomographyObj::process()
 				_hom = _homography.hom();
 		}
 		_homographies.push_back(_homographies[_homographies.size()-1] * _hom);
+
+		// keep global transformed sifts for click navigation
+		// 1. remove old sifts that are 
+		RX::BBox originalFrame(RX::vec2(0, 0), RX::vec2(0, 0), RX::vec2(0, 0), RX::vec2(0, 0));
+		RX::BBox transformedFrame = _homographies[_homographies.size()-1] * originalFrame;
+		for(int i = 0; i < _globalSifts.size(); ++i)
+		{
+			if(transformedFrame.isInside(_globalSifts[i].pos)) {
+				_globalSifts.erase(_globalSifts.begin()+i);
+				--i;
+			}
+		}
+
 		++_lastReady;
 	}
 }

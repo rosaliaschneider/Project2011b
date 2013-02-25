@@ -40,7 +40,7 @@ void SiftObj::process()
 		sift.second(frame2.width(), frame2.height(), (char*)(frame2.bits()), GL_RGB, GL_UNSIGNED_BYTE, _lastReady+2, &_sifts[_lastReady+2]);
 
 		_matches.push_back(vector< pair<int, int> >());
-		sift.match(&_matches[_lastReady+1], &_sifts[_lastReady+2], _sifts[_lastReady+1]);
+		sift.match(&_matches[_lastReady+1]);
 
 		frame1 = frame2;
 		sift.copySecondToFirst();

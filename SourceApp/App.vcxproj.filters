@@ -146,6 +146,24 @@
     <ClCompile Include="GeneratedFiles\Release\moc_SiftObj.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_VideoObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_VideoObj.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoObj.cpp">
+      <Filter>Source Files\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="MapObj.cpp">
+      <Filter>Source Files\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_MapObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_MapObj.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="app.qrc">
@@ -173,6 +191,12 @@
       <Filter>Header Files\Globals</Filter>
     </CustomBuild>
     <CustomBuild Include="SiftObj.h">
+      <Filter>Header Files\Globals</Filter>
+    </CustomBuild>
+    <CustomBuild Include="VideoObj.h">
+      <Filter>Header Files\Globals</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MapObj.h">
       <Filter>Header Files\Globals</Filter>
     </CustomBuild>
   </ItemGroup>
