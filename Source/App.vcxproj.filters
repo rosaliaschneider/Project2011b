@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;cxx;c;def</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{a7d951de-105f-4f52-8f2c-250e3753405b}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{204360a1-39a7-4ac7-b2ee-df2ffcf86554}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Header Files\Interface">
+      <UniqueIdentifier>{2933ef0f-fbd4-4d98-a0e6-a40295a62540}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Interface">
+      <UniqueIdentifier>{fe88cf1b-9ca4-4eff-9e38-71de9c4c2f54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Homographies">
+      <UniqueIdentifier>{9b31c9d4-4f15-457c-a1c9-5b6fd204d636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Homographies">
+      <UniqueIdentifier>{d923d7ce-eb50-4749-92c1-67a8e11f8b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sifts">
+      <UniqueIdentifier>{fb5a799d-e057-48ff-81f6-1ed84cd6e1c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sifts">
+      <UniqueIdentifier>{b587d921-feba-4476-be0e-f9c23c361b00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Threads">
+      <UniqueIdentifier>{518ed44e-7721-44b7-9c62-557b88a20a5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Threads">
+      <UniqueIdentifier>{c0dc7452-9e09-4e0c-98b4-e08c46354a16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resources">
+      <UniqueIdentifier>{7286100f-b40f-4a89-944b-82f0c5914d91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resources">
+      <UniqueIdentifier>{a454ffa9-d679-4f2b-8283-a6b288bcefbd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GeneratedFiles\qrc_app.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_MainWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_MainWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_VideoPlayer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_VideoPlayer.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_GLWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_GLWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GLWidget.cpp">
+      <Filter>Source Files\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoPlayer.cpp">
+      <Filter>Source Files\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Source Files\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Homography.cpp">
+      <Filter>Source Files\Homographies</Filter>
+    </ClCompile>
+    <ClCompile Include="Ransac.cpp">
+      <Filter>Source Files\Homographies</Filter>
+    </ClCompile>
+    <ClCompile Include="HomographyDefs.cpp">
+      <Filter>Source Files\Homographies</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Video.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Video.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Video.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_HomographyObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_HomographyObj.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Globals.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sift.cpp">
+      <Filter>Source Files\Sifts</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SiftObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SiftObj.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="HomographyObj.cpp">
+      <Filter>Source Files\Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="SiftObj.cpp">
+      <Filter>Source Files\Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="SiftMapObj.cpp">
+      <Filter>Source Files\Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="HomographyMapObj.cpp">
+      <Filter>Source Files\Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SiftMapObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SiftMapObj.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_HomographyMapObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_HomographyMapObj.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="PDFHandler.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="MapObj.cpp">
+      <Filter>Source Files\Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_MapObj.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_MapObj.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="MapThread.cpp">
+      <Filter>Source Files\Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_FramebufferWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_FramebufferWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="FramebufferWidget.cpp">
+      <Filter>Source Files\Interface</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="app.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="mainwindow.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GLWidget.h">
+      <Filter>Header Files\Interface</Filter>
+    </CustomBuild>
+    <CustomBuild Include="VideoPlayer.h">
+      <Filter>Header Files\Interface</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MainWindow.h">
+      <Filter>Header Files\Interface</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Video.h">
+      <Filter>Header Files\Resources</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HomographyObj.h">
+      <Filter>Header Files\Threads</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SiftObj.h">
+      <Filter>Header Files\Threads</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SiftMapObj.h">
+      <Filter>Header Files\Threads</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HomographyMapObj.h">
+      <Filter>Header Files\Threads</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MapObj.h">
+      <Filter>Header Files\Threads</Filter>
+    </CustomBuild>
+    <CustomBuild Include="FramebufferWidget.h">
+      <Filter>Header Files\Interface</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GeneratedFiles\ui_mainwindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Homography.h">
+      <Filter>Header Files\Homographies</Filter>
+    </ClInclude>
+    <ClInclude Include="Ransac.h">
+      <Filter>Header Files\Homographies</Filter>
+    </ClInclude>
+    <ClInclude Include="HomographyDefs.h">
+      <Filter>Header Files\Homographies</Filter>
+    </ClInclude>
+    <ClInclude Include="SiftPoint.h">
+      <Filter>Header Files\Sifts</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Header Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Sift.h">
+      <Filter>Header Files\Sifts</Filter>
+    </ClInclude>
+    <ClInclude Include="SiftGPU.h">
+      <Filter>Header Files\Sifts</Filter>
+    </ClInclude>
+    <ClInclude Include="PDFHandler.h">
+      <Filter>Header Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>Header Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="MapThread.h">
+      <Filter>Header Files\Threads</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Bin\App\transpF.cg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Bin\App\transpV.cg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Bin\App\grayF.cg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Bin\App\grayV.cg">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
